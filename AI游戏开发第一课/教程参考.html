@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>教程参考 · AI 工具怎么选 + 谁用 AI 做出了什么游戏</title>
+<link rel="icon" href="assets/favicon.svg">
+<style>
+@font-face{font-family:Noto;src:url('assets/fonts/NotoSansSC.ttf');font-display:swap}
+@font-face{font-family:Pixel;src:url('assets/fonts/PressStart2P-Regular.ttf');font-display:swap}
+:root{--bg:#0a0e1a;--panel:rgba(21,32,44,.78);--ink:#f9ebcd;--muted:#9db0b8;--dim:#7b8b92;
+  --gold:#ffd17c;--green:#8fe6b0;--neon:#4de8ff;--sakura:#ffb7d5;--magenta:#ff5da2;--violet:#a06bff;--line:rgba(77,232,255,.18)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:16.5px/1.9 Noto,'Microsoft YaHei',sans-serif;color:var(--ink);background:
+  radial-gradient(1100px 480px at 85% -8%,rgba(255,93,162,.09),transparent 62%),
+  radial-gradient(900px 460px at 5% 108%,rgba(77,232,255,.08),transparent 62%),var(--bg)}
+h1{font-size:clamp(28px,4vw,44px);margin:.3em 0;line-height:1.35}
+h2{font-size:clamp(22px,2.6vw,30px);color:var(--gold);margin:0 0 .4em}
+h3{font-size:19px;color:var(--green);margin:0 0 .4em}
+p{margin:.5em 0}
+a{color:var(--neon)}
+.pix{font-family:Pixel,monospace;font-size:10px;letter-spacing:2.5px;color:var(--neon);text-shadow:0 0 10px rgba(77,232,255,.6)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 26px}
+section{padding:50px 0 30px;border-top:1px solid transparent;border-image:linear-gradient(90deg,transparent,rgba(77,232,255,.3),transparent) 1}
+.topnav{position:sticky;top:0;z-index:60;background:rgba(10,14,26,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(77,232,255,.25)}
+.topnav .wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+.topnav a{color:var(--muted);text-decoration:none;font-size:13.5px;padding:6px 11px;border-radius:8px}
+.topnav a:hover{color:var(--gold)}
+.topnav .home{color:var(--gold);font-weight:700}
+.topnav .spacer{flex:1}
+header.hero{padding:52px 0 26px}
+.lead{color:var(--muted);max-width:780px;font-size:17px}
+.lead b{color:var(--ink)}
+.note{position:relative;border:2px solid rgba(255,209,124,.5);border-radius:12px;margin:20px 0;
+  background:linear-gradient(180deg,rgba(27,48,56,.95),rgba(16,27,33,.95));
+  box-shadow:0 0 0 3px #0a0e1a,5px 7px rgba(5,8,15,.7);padding:15px 20px;color:#f2e6c8;font-size:14.5px}
+.note.red{border-color:rgba(255,93,162,.55)}
+.note b{color:#fff}
+
+/* 工具卡 */
+.tools{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:20px}
+@media(max-width:820px){.tools{grid-template-columns:1fr}}
+.tool{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;
+  box-shadow:0 8px 26px rgba(3,6,12,.5);transition:transform .25s,border-color .25s}
+.tool:hover{transform:translateY(-4px);border-color:rgba(77,232,255,.5)}
+.tool h4{font-size:18px;margin:0 0 4px;color:var(--ink)}
+.tool .role{font-size:12.5px;color:var(--sakura);letter-spacing:1px}
+.tool table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+.tool td{padding:7px 10px 7px 0;vertical-align:top;color:var(--muted)}
+.tool td:first-child{color:var(--neon);white-space:nowrap;font-weight:700;width:64px}
+.tool .links{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+.tool .links a{font-size:12.5px;padding:4px 13px;border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--green)}
+.tool .links a:hover{border-color:var(--gold);color:var(--gold)}
+
+/* 教程与案例卡 */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+@media(max-width:820px){.cards{grid-template-columns:1fr}}
+.refcard{display:block;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  text-decoration:none;color:inherit;box-shadow:0 8px 26px rgba(3,6,12,.5);transition:transform .25s,border-color .25s,box-shadow .25s}
+.refcard:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 12px 34px rgba(3,6,12,.6),0 0 24px rgba(255,209,124,.14)}
+.refcard .thumb{aspect-ratio:16/7;background:#0b1418 center/cover no-repeat}
+.refcard .xthumb{aspect-ratio:16/7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  background:linear-gradient(135deg,rgba(77,232,255,.08),rgba(255,93,162,.08));border-bottom:1px solid var(--line)}
+.refcard .xthumb .x{font-size:34px;color:var(--ink);font-weight:900}
+.refcard .xthumb .h{font-family:Pixel,monospace;font-size:10px;letter-spacing:2px;color:var(--neon)}
+.refcard .body{padding:15px 18px}
+.refcard .plat{font-size:11px;letter-spacing:1.5px;color:var(--dim)}
+.refcard h4{font-size:16.5px;margin:5px 0 4px;color:var(--ink)}
+.refcard p{font-size:13.5px;color:var(--muted);margin:3px 0}
+.refcard .lens{font-size:13px;color:var(--neon);margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}
+.refcard .play{display:inline-block;margin-top:8px;font-size:12.5px;color:var(--gold);border:1px solid rgba(255,209,124,.5);border-radius:14px;padding:3px 12px}
+footer{border-top:1px solid var(--line);padding:26px 0 50px;color:var(--dim);font-size:13.5px}
+@media print{.topnav{display:none}body{background:#fff;color:#222}}
+</style>
+</head>
+<body>
+
+<nav class="topnav"><div class="wrap">
+  <a class="home" href="../index.html">← 课件首页</a>
+  <a href="index.html">正课</a>
+  <a href="#tools">工具怎么选</a>
+  <a href="#tutorials">官方实操教程</a>
+  <a href="#xwall">X 案例墙</a>
+  <span class="spacer"></span>
+  <a href="体验实验室.html">体验实验室</a>
+  <a href="塔防实操练习单.html">练习单</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <span class="pix">REFERENCE · ツール & 事例</span>
+  <h1>AI 工具分享 & 实操教程参考</h1>
+  <p class="lead">两件事情：① 做游戏的 AI 工具各自强在哪、附官方教程；② <b>X 上真实的人用 AI 做出的真实游戏</b>——每个案例都附原帖链接，大部分游戏现在就能点开玩。外链需要联网，X 可能需要登录。核对日期 2026-09-07。</p>
+</div></header>
+
+<section id="tools"><div class="wrap">
+  <span class="pix">TOOLS · 做游戏怎么选</span>
+  <h2>四类工具，各自的优势</h2>
+  <p style="color:var(--muted);max-width:800px">没有「最强工具」，只有「这一棒谁跑」。原则不变：聊创意可以随便用哪个，<b style="color:var(--ink)">落地改文件必须用有文件夹权限的 Agent</b>。</p>
+  <div class="tools">
+    <div class="tool">
+      <span class="role">本课主线 · 桌面 Agent</span>
+      <h4>Codex（OpenAI）</h4>
+      <table>
+        <tr><td>优势</td><td>绑定本地文件夹干活：读写文件、跑命令、给证据；桌面端适合新人，任务制界面清晰</td></tr>
+        <tr><td>适合</td><td>从零做网页 Demo、小步迭代、bug 修复（本课 Q3–Q5 全部用它）</td></tr>
+        <tr><td>短板</td><td>需要获准账号与额度；长链路大改动要拆任务喂</td></tr>
+      </table>
+      <div class="links"><a href="https://learn.chatgpt.com/zh-Hans/docs/quickstart" target="_blank" rel="noopener">官方快速入门(中文)</a><a href="https://academy.openai.com/public/videos/codex-for-beginners-2026-04-22" target="_blank" rel="noopener">官方初学者讲座</a></div>
+    </div>
+    <div class="tool">
+      <span class="role">终端强者 · 长任务</span>
+      <h4>Claude Code（Anthropic）</h4>
+      <table>
+        <tr><td>优势</td><td>长上下文 + 强规划，适合复杂规则与多文件项目；先写 spec 再动手的习惯好</td></tr>
+        <tr><td>适合</td><td>已有工程基础的同事；Vibe Jam 2026 冠军作品几乎全由它完成（见案例墙）</td></tr>
+        <tr><td>短板</td><td>终端界面，对纯新人不如桌面端直观</td></tr>
+      </table>
+      <div class="links"><a href="https://code.claude.com/docs/en/overview" target="_blank" rel="noopener">官方能力说明</a><a href="https://www.youtube.com/watch?v=gv0WHhKelSE" target="_blank" rel="noopener">官方最佳实践(视频)</a></div>
+    </div>
+    <div class="tool">
+      <span class="role">编辑器一体 · 创作者最多</span>
+      <h4>Cursor</h4>
+      <table>
+        <tr><td>优势</td><td>编辑器里直接对话改代码，上下文最顺手；独立游戏圈用的人最多</td></tr>
+        <tr><td>适合</td><td>想边看代码边改的人；fly.pieter.com 就是用它三小时搓出来的（见案例墙）</td></tr>
+        <tr><td>短板</td><td>本质是编辑器，完全不碰代码的人会有心理门槛</td></tr>
+      </table>
+      <div class="links"><a href="https://cursor.com" target="_blank" rel="noopener">官网</a></div>
+    </div>
+    <div class="tool">
+      <span class="role">聊天原型 · 头脑风暴</span>
+      <h4>Grok / Gemini 等聊天模型</h4>
+      <table>
+        <tr><td>优势</td><td>聊创意、出方案、写独立小脚本快；Grok 写过 fly.pieter.com 的服务器代码</td></tr>
+        <tr><td>适合</td><td>立项前的点子碰撞、数值草案、规则推演</td></tr>
+        <tr><td>短板</td><td>多数没有你的文件夹权限——<b>聊天里的建议不等于已保存的游戏</b>，选定规则要带回 Codex / Claude Code 落地</td></tr>
+      </table>
+      <div class="links"><a href="https://x.com/minchoi/status/2075959167689396374" target="_blank" rel="noopener">Grok 做游戏案例串(X)</a></div>
+    </div>
+  </div>
+  <div class="note"><b>素材类工具顺带一提：</b>美术参考图、音效、BGM 也有 AI 工具（图像生成、音乐生成），但本课主线用「代码画图形 + WebAudio 合成音」就够了——第一版别卡在素材上。</div>
+</div></section>
+
+<section id="tutorials"><div class="wrap">
+  <span class="pix">TUTORIALS · 官方实操教程</span>
+  <h2>跟着做就会的实操教程</h2>
+  <div class="cards">
+    <a class="refcard" href="https://academy.openai.com/public/videos/codex-for-beginners-2026-04-22" target="_blank" rel="noopener">
+      <div class="xthumb"><span class="x">▶</span><span class="h">OPENAI ACADEMY</span></div>
+      <div class="body"><span class="plat">官方 · 讲座回放 · 2026-04</span><h4>Codex for Beginners</h4><p>OpenAI 官方初学者讲座：任务在哪开始、怎么提供项目、生成后怎么检查。建议完成本课 Q3 之后再看。</p><p class="lens">看点：带着「它怎么验收自己的工作」这个问题去看。</p></div>
+    </a>
+    <a class="refcard" href="https://www.youtube.com/watch?v=px7XlbYgk7I&t=986s" target="_blank" rel="noopener">
+      <div class="thumb" style="background-image:url('https://img.youtube.com/vi/px7XlbYgk7I/hqdefault.jpg')"></div>
+      <div class="body"><span class="plat">YOUTUBE · OPENAI · 选看 16:26–27:02</span><h4>Getting started with Codex（提示词章节）</h4><p>只看 Prompting patterns 一章：怎么给上下文、怎么把任务写明确。看完改写你自己的下一条修改消息。</p><p class="lens">看点：官方教你写「目标+约束+验收」，和我们的五段式互相印证。</p></div>
+    </a>
+    <a class="refcard" href="https://www.youtube.com/watch?v=gv0WHhKelSE" target="_blank" rel="noopener">
+      <div class="thumb" style="background-image:url('https://img.youtube.com/vi/gv0WHhKelSE/hqdefault.jpg')"></div>
+      <div class="body"><span class="plat">YOUTUBE · ANTHROPIC 官方</span><h4>Claude Code best practices</h4><p>不是游戏炫技：调查、计划、上下文、验证怎样组成可靠的 Agent 工作流。</p><p class="lens">看点：把目标、约束、验收写进项目，比「神提示词」更可复制。</p></div>
+    </a>
+    <a class="refcard" href="https://creatoreconomy.so/p/build-a-retro-game-with-claude-code-in-20-min" target="_blank" rel="noopener">
+      <div class="xthumb"><span class="x">▶</span><span class="h">TUTORIAL · 20 MIN</span></div>
+      <div class="body"><span class="plat">图文+视频 · CLAUDE CODE 实操</span><h4>20 分钟用 Claude Code 做复古太空射击</h4><p>完整五步：建项目 → 找免费像素素材 → 让 AI 先写规格 → MVP 迭代 → 部署上线。作者带娃一起做，门槛极低。</p><p class="lens">看点：他先让 AI 写 spec 再动手——和正课 Q3「先确认规则再改文件」是同一个动作。</p></div>
+    </a>
+  </div>
+</div></section>
+
+<section id="xwall"><div class="wrap">
+  <span class="pix">𝕏 WALL · 真实的人,真实的游戏</span>
+  <h2>X 案例墙：谁用 AI 做出了什么游戏</h2>
+  <p style="color:var(--muted);max-width:820px">每个案例都附<b style="color:var(--ink)">原帖链接</b>；标注「可玩」的游戏现在就能点开。收入、时长均为作者自述口径，注意甄别——但「一个人 + AI + 几天 = 能玩的游戏」这件事本身是真实的。</p>
+  <div class="cards">
+    <a class="refcard" href="https://x.com/levelsio/status/1899596115210891751" target="_blank" rel="noopener">
+      <div class="xthumb"><span class="x">𝕏</span><span class="h">@LEVELSIO · 原帖串</span></div>
+      <div class="body"><span class="plat">𝕏 · 2025-02 · 引发 vibe coding 浪潮的一帖</span><h4>零游戏经验，3 小时用 Cursor 搓出多人飞行模拟器</h4><p>Pieter Levels 边做边发：Cursor 写前端、Grok 3 写服务器，整个游戏就一个 HTML 文件 + 一个 WebSocket 服务；Elon Musk 转发「AI gaming will be massive」。17 天作者自述冲到 $1M ARR（广告位模式）。</p><p class="lens">看点：速度是真的；但火爆靠的是「边做边直播」的传播和广告创意，不是玩法深度。</p><span class="play">可玩：fly.pieter.com</span></div>
+    </a>
+    <a class="refcard" href="https://levels.io/vibe-jam-2026-winners-quality" target="_blank" rel="noopener">
+      <div class="xthumb"><span class="x">𝕏</span><span class="h">VIBE JAM 2026 ·  Winners</span></div>
+      <div class="body"><span class="plat">𝕏 / 博客 · 2026-06 · 赛事结果</span><h4>Vibe Jam 2026：冠军「水豚送外卖」拿走 $25,000</h4><p>规则：90% 代码由 AI 编写、浏览器免登录即玩。冠军 A Game About Capybaras Delivering Food（@leocooout），亚军 Fanto's Mega-Mart、季军 WenWare——三款现在都能在线玩。评委原话：「有些已经接近真正的游戏了」。</p><p class="lens">看点：这是「AI 能做到哪」的年度公开基准。挑冠军作玩 5 分钟，对比你第一天做的 Demo。</p><span class="play">可玩：capybara-vibejam26.leocoout.dev 等</span></div>
+    </a>
+    <a class="refcard" href="https://x.com/minchoi/status/2075959167689396374" target="_blank" rel="noopener">
+      <div class="xthumb"><span class="x">𝕏</span><span class="h">@MINCHOI · 案例串</span></div>
+      <div class="body"><span class="plat">𝕏 · 二手汇总 · 审慎观看</span><h4>Grok 快速生成多类游戏与 3D 场景</h4><p>FPS、横版、空间战斗、UE 场景等一串快速生成案例。是灵感样本，不是质量评测。</p><p class="lens">看点：两行 Prompt 能做出「可看」；下一个问题必须是「玩家为什么愿意再玩」。</p></div>
+    </a>
+    <a class="refcard" href="https://x.com/GlavinW/status/2042244747062857827" target="_blank" rel="noopener">
+      <div class="xthumb"><span class="x">𝕏</span><span class="h">@GLAVINW · VIBEJAM 参赛</span></div>
+      <div class="body"><span class="plat">𝕏 · 创作者原帖</span><h4>用 Claude Code 写了一个 GPU 刚体物理引擎</h4><p>不是「做个小游戏」，而是让 Agent 直接写底层技术——物理与破坏效果过去太贵，现在一个人够得着。</p><p class="lens">看点：想想你的项目里，有没有「过去太贵所以不敢做」的卖点，现在可以重新评估。</p></div>
+    </a>
+    <a class="refcard" href="https://vibej.am/2025/" target="_blank" rel="noopener">
+      <div class="xthumb"><span class="x">▶</span><span class="h">ARCHIVE · 1000+ GAMES</span></div>
+      <div class="body"><span class="plat">赛事存档 · 2025 第一届</span><h4>Vibe Jam 2025 存档：上千个 AI 游戏全部可玩</h4><p>第一届规则：80% 代码 AI 编写、浏览器即玩。评委有「vibe coding」提出者 Karpathy。存档里上千个游戏现在还能点开——最好的灵感库。</p><p class="lens">看点：挑 3 个获奖作品玩 5 分钟，写下「它如果没有 AI 还能不能成立」。</p><span class="play">可玩：vibej.am/2025 全部作品</span></div>
+    </a>
+    <a class="refcard" href="https://fly.zullo.fun" target="_blank" rel="noopener">
+      <div class="xthumb"><span class="x">✈</span><span class="h">@NICOLASZU · WW2 DOGFIGHT</span></div>
+      <div class="body"><span class="plat">可玩网站 · 2025 · 追随者样本</span><h4>WW2 空战竞技场：小账号也能做出爆款</h4><p>作者自述「20 小时、500 条 Prompt、20 欧元」，用 Cursor + Claude + Grok 做出 3D 多人空战，X 上 150 万浏览、4.5 万人试玩（均为作者口径）。</p><p class="lens">看点：证明 fly.pieter.com 不是孤例——模式可以复制，但「作者自述」要打折看。</p><span class="play">可玩：fly.zullo.fun</span></div>
+    </a>
+  </div>
+  <div class="note red"><b>看案例墙的纪律：</b>播放量、生成时长、「零代码」宣传都不是质量证据。每看一个案例回答两个问题：它验证了什么？它回避了什么？——这就是制作人看世界的眼睛。</div>
+</div></section>
+
+<footer><div class="wrap">
+  <p>本页全部为外部链接，需要联网；X 帖子可能需要登录，可用性以来源平台为准。数字与结论以原作者自述为准，课件不做背书。返回 <a href="index.html">正课</a> · <a href="体验实验室.html">体验实验室</a> · <a href="../index.html">课件首页</a>。核对日期：2026-09-07。</p>
+</div></footer>
+
+</body>
+</html>
