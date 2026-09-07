@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>随堂练习单 · 魔兽风 RPG 塔防八轮实操</title>
+<link rel="icon" href="assets/favicon.svg">
+<style>
+@font-face{font-family:Noto;src:url('assets/fonts/NotoSansSC.ttf');font-display:swap}
+@font-face{font-family:Pixel;src:url('assets/fonts/PressStart2P-Regular.ttf');font-display:swap}
+:root{--bg:#0a0e1a;--panel:#15202c;--ink:#f9ebcd;--muted:#b5c8bd;--dim:#8aa096;
+  --gold:#ffd17c;--green:#c5e1bd;--neon:#4de8ff;--magenta:#ff5da2;--violet:#a06bff;--line:#3a5451}
+*{box-sizing:border-box}
+body{margin:0;font:16.5px/1.85 Noto,'Microsoft YaHei',sans-serif;background:
+  radial-gradient(900px 400px at 85% 0,rgba(255,93,162,.08),transparent 60%),
+  radial-gradient(800px 400px at 5% 100%,rgba(77,232,255,.07),transparent 60%),var(--bg);color:var(--ink)}
+.wrap{max-width:960px;margin:0 auto;padding:0 24px}
+header{padding:56px 0 30px;border-bottom:1px solid rgba(77,232,255,.25)}
+.pix{font-family:Pixel,monospace;font-size:11px;letter-spacing:2px;color:var(--neon);text-shadow:0 0 10px rgba(77,232,255,.6)}
+h1{font-size:clamp(26px,3.6vw,40px);margin:.3em 0;background:linear-gradient(92deg,var(--gold),#ffe9b8 60%,var(--neon));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:20px;color:var(--gold);margin:0}
+p{margin:.5em 0}
+a{color:var(--neon)}
+.topbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{display:inline-block;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:14.5px;border:1px solid rgba(77,232,255,.4);color:var(--green);background:transparent;cursor:pointer;font-family:inherit}
+.btn:hover{border-color:var(--neon);color:var(--neon);box-shadow:0 0 14px rgba(77,232,255,.25)}
+.btn.gold{background:linear-gradient(180deg,#ffe3a1,var(--gold) 60%,#e8ae4e);color:#2a1e08;border:0;box-shadow:3px 3px #05080f}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0}
+@media(max-width:720px){.rules{grid-template-columns:1fr}}
+.rule{background:var(--panel);border:1px solid rgba(77,232,255,.16);border-radius:8px;padding:14px 16px;font-size:14px;color:var(--muted);box-shadow:4px 4px #05080f}
+.rule b{color:var(--ink);display:block;margin-bottom:4px}
+.progressbar{height:12px;border-radius:6px;background:#0b1418;border:1px solid var(--line);overflow:hidden;margin:8px 0 4px}
+.progressbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--neon),var(--violet),var(--magenta));box-shadow:0 0 12px rgba(160,107,255,.8);transition:width .4s}
+.round{margin:26px 0;background:var(--panel);border:1px solid rgba(77,232,255,.18);border-radius:12px;overflow:hidden;box-shadow:5px 5px #05080f}
+.round.done{border-color:rgba(197,225,189,.55)}
+.round .head{display:flex;align-items:center;gap:14px;padding:16px 20px;background:linear-gradient(90deg,rgba(77,232,255,.08),transparent);flex-wrap:wrap}
+.round .rb{font-family:Pixel,monospace;font-size:12px;color:var(--bg);background:linear-gradient(180deg,#9ff0ff,var(--neon));padding:5px 10px;border-radius:5px;box-shadow:0 0 12px rgba(77,232,255,.5)}
+.round.boss .rb{background:linear-gradient(180deg,#ff9ec4,var(--magenta));box-shadow:0 0 12px rgba(255,93,162,.6)}
+.round .head h2{flex:1;min-width:200px}
+.round .rt{font-size:13px;color:var(--dim)}
+.round .body{padding:6px 20px 20px}
+.scene{font-size:15px;color:var(--muted);background:rgba(11,20,24,.7);border-left:3px solid var(--neon);padding:12px 16px;border-radius:0 8px 8px 0}
+.scene b{color:var(--ink)}
+.task{font-size:15px;margin:14px 0 6px;color:var(--gold)}
+textarea.mine{width:100%;min-height:130px;background:#0b1418;color:#d8e6d2;border:1px solid rgba(77,232,255,.25);border-radius:8px;padding:14px;font:14.5px/1.8 Noto,'Microsoft YaHei',sans-serif;resize:vertical}
+textarea.mine:focus{outline:none;border-color:var(--neon);box-shadow:0 0 14px rgba(77,232,255,.25)}
+textarea.mine::placeholder{color:#4a5f58}
+.accept-mine{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+@media(max-width:640px){.accept-mine{grid-template-columns:1fr}}
+.accept-mine input{background:#0b1418;border:1px dashed rgba(255,209,124,.4);border-radius:6px;color:var(--gold);padding:10px 12px;font:14px Noto,'Microsoft YaHei',sans-serif}
+.accept-mine input:focus{outline:none;border-style:solid;border-color:var(--gold)}
+details{margin-top:14px;border:1px solid rgba(197,225,189,.3);border-radius:8px;overflow:hidden}
+details summary{cursor:pointer;padding:12px 16px;font-size:14.5px;color:var(--green);background:rgba(197,225,189,.05);list-style:none}
+details summary::before{content:"▸ ";color:var(--gold)}
+details[open] summary::before{content:"▾ "}
+details .ans{padding:14px 16px}
+.ref{position:relative;background:#0b1418;border-left:3px solid var(--neon);border-radius:0 8px 8px 0;padding:14px 16px;font-size:14px;color:#b9e8c8;white-space:pre-wrap;line-height:1.8}
+.ref .copy{position:absolute;top:8px;right:8px;font-size:12px;padding:3px 11px;border-radius:5px;border:1px solid var(--line);background:var(--panel);color:var(--green);cursor:pointer;font-family:inherit}
+.ref .copy:hover{border-color:var(--gold);color:var(--gold)}
+.comment{font-size:13.5px;color:var(--cyan);margin-top:10px}
+.selfcheck{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:14px;color:var(--muted)}
+.selfcheck label{display:flex;gap:7px;align-items:center;cursor:pointer}
+.selfcheck input{accent-color:var(--gold);width:17px;height:17px}
+.finish{margin:40px 0 60px;background:var(--panel);border:1px solid rgba(255,209,124,.35);border-radius:12px;padding:26px;box-shadow:5px 5px #05080f}
+footer{border-top:1px solid var(--line);padding:26px 0 46px;color:var(--dim);font-size:13.5px}
+.wlines{display:none}
+@media print{
+  body{background:#fff;color:#1a1a1a;font-size:12pt}
+  .topbar,.btn,.copy,.selfcheck,.progressbar-wrap{display:none!important}
+  header{border-bottom:2px solid #333;padding:20px 0}
+  h1{background:none;color:#1a1a1f;-webkit-text-fill-color:#1a1a1f}
+  .pix{color:#666;text-shadow:none}
+  .round{background:#fff;border:1.5px solid #999;border-radius:6px;box-shadow:none;break-inside:avoid;margin:18px 0}
+  .round .head{background:#f2f2f2}.round .rb{background:#333;color:#fff;box-shadow:none;text-shadow:none}
+  .round .rt{color:#666}
+  h2{color:#1a1a1f}
+  .scene{background:#f7f7f7;border-color:#333;color:#333}
+  .scene b{color:#000}
+  .task{color:#7a5b00}
+  textarea.mine{border:0;background:transparent;min-height:0;height:0;padding:0;overflow:hidden;color:transparent}
+  .accept-mine{display:none}
+  .wlines{display:block;margin:6px 0 14px}
+  .wlines i{display:block;height:34px;border-bottom:1px solid #bbb}
+  .wlines.three i{height:30px}
+  details{border-color:#999}
+  details summary{color:#2c5d3f;background:#f0f5f0}
+  details .ans{display:block}
+  details:not([open]) .ans{display:block}
+  .ref{background:#fbfbf6;border-color:#888;color:#333}
+  .comment{color:#2a6f77}
+  .finish{background:#fff;border:1.5px solid #999;box-shadow:none}
+  a{color:#1a4a6b}
+}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <span class="pix">CLASS WORKSHEET · 塔防实操练习单</span>
+  <h1>先自己写，再对答案：八轮指令挑战</h1>
+  <p style="color:var(--muted);max-width:760px">配套「体验实验室 → 塔防实操拆解」使用。每一轮先看情境，<b style="color:var(--ink)">在框里写出你会真实发给 AI 的完整指令（限时 5 分钟）</b>，再展开参考话术对比差距。你写的内容只存在自己的浏览器里，可一键导出带走。</p>
+  <div class="topbar">
+    <a class="btn" href="体验实验室.html#tdcase">← 返回实操拆解</a>
+    <a class="btn" href="体验实验室.html#homework">看作业要求</a>
+    <button class="btn gold" id="exportBtn">⬇ 导出我的练习记录</button>
+    <button class="btn" onclick="window.print()">打印练习单</button>
+  </div>
+  <div class="progressbar-wrap" style="margin-top:22px">
+    <div class="progressbar"><i id="pbar"></i></div>
+    <p style="font-size:13.5px;color:var(--dim)" id="ptext">已完成 0 / 8 轮</p>
+  </div>
+</div></header>
+
+<div class="wrap">
+  <div class="rules">
+    <div class="rule"><b>怎么算写得好</b>五段式骨架：目标 → 引擎/现状 → 约束 → 验收 → 禁改。少一段，AI 就多一点自由发挥的空间。</div>
+    <div class="rule"><b>怎么对答案</b>不是比谁写得像。对照参考话术，找出你漏掉的「验收证据」和「禁改范围」——这两项是新人最常漏的。</div>
+    <div class="rule"><b>写完真的去用</b>这张练习单上的每一轮，都可以直接复制到 Codex / Claude Code 里跑。纸上得来终觉浅。</div>
+  </div>
+
+  <!-- R0 -->
+  <div class="round" data-r="r0">
+    <div class="head"><span class="rb">R0</span><h2>立项：先砍范围，不动手</h2><span class="rt">30 分钟 · 零代码</span></div>
+    <div class="body">
+      <div class="scene"><b>情境：</b>你想做一个魔兽 RPG 味的塔防网页 Demo，脑子里有十个想法：英雄、装备、天赋、商店、Boss rush……今天只有一天半。你的第一条消息不是让 AI 写代码，而是让它帮你把范围砍到能做完。</div>
+      <p class="task">✍ 写出你的第一条指令（提示：让 AI 提问，而不是让它开工）：</p>
+      <textarea class="mine" data-k="r0" placeholder="例如：我想做一个……先不要写代码。请问准我……"></textarea>
+      <div class="wlines"><i></i><i></i><i></i><i></i></div>
+      <p class="task">✍ 这轮结束，你手里应该拿到什么才算完？写 3 个验收点：</p>
+      <div class="accept-mine"><input data-k="r0a1" placeholder="验收点 1"><input data-k="r0a2" placeholder="验收点 2"><input data-k="r0a3" placeholder="验收点 3"></div>
+      <div class="wlines three"><i></i><i></i><i></i></div>
+      <details><summary>对照参考话术与点评</summary><div class="ans">
+        <div class="ref"><button class="copy">复制</button>我想做一个魔兽 RPG 味的塔防网页 Demo，命题是：英雄守住峡谷口，塔的流派组合决定打法。
+先不要写代码。请问准我 3 个问题，分别确认：玩家每一分钟在做什么操作、赢和输分别是什么画面、为什么英雄（而不是纯塔）是核心。每个问题给我两个选项，我回答后你整理成一页规则：玩家目标、核心循环、本 Demo 明确不做的内容（不做联网、不做抽卡、不做关卡编辑器）。</div>
+        <p class="comment">点评：好立项的三个标志——有明确命题、强制 AI 先问、「不做什么」比「做什么」更长。如果你的版本里没有「不做什么」，范围已经失控了。</p>
+      </div></details>
+      <div class="selfcheck"><label><input type="checkbox" data-k="r0c1">有五段式骨架</label><label><input type="checkbox" data-k="r0c2">有明确禁做/禁改</label><label><input type="checkbox" data-k="r0c3">有可检查的验收点</label></div>
+    </div>
+  </div>
+
+  <!-- R1 -->
+  <div class="round" data-r="r1">
+    <div class="head"><span class="rb">R1</span><h2>最小循环：一条路、一波怪、一座塔</h2><span class="rt">第 1 天上午</span></div>
+    <div class="body">
+      <div class="scene"><b>情境：</b>立项通过，文件夹是空的。你要在 30 秒内看到「怪沿路线走 → 塔自动攻击 → 怪死光或漏光 → 结算」完整转一圈。所有数值必须具体到数字，否则 AI 会替你编。</div>
+      <p class="task">✍ 写出这条「生成第一版」指令（提示：每个机制配具体数字，并写明不做什么）：</p>
+      <textarea class="mine" data-k="r1" placeholder="请在当前文件夹做一个单文件网页塔防（index.html）……"></textarea>
+      <div class="wlines"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="task">✍ 验收点（提示：胜利和失败都要亲眼看到）：</p>
+      <div class="accept-mine"><input data-k="r1a1" placeholder="验收点 1"><input data-k="r1a2" placeholder="验收点 2"><input data-k="r1a3" placeholder="验收点 3"></div>
+      <div class="wlines three"><i></i><i></i><i></i></div>
+      <details><summary>对照参考话术与点评</summary><div class="ans">
+        <div class="ref"><button class="copy">复制</button>请在当前文件夹做一个单文件网页塔防（index.html），Canvas 实现，最小循环：
+- 地图：固定一张，左侧入口到右侧基地的一条 S 形路线，路边 6 个可建造点；
+- 怪：只有一种，80 血，沿路线匀速走，到终点基地扣 1 命（共 3 命）；
+- 塔：只有一种箭塔，造价 50 金，射程 100，每秒 1 箭、每箭 20 伤害；开局 100 金；
+- 波次：只有 1 波 10 只怪；全部消灭显示胜利，命没了显示失败；可重开。
+不要英雄、不要升级、不要第二种塔。完成后告诉我打开方法，我自己试玩。</div>
+        <p class="comment">点评：数一遍你的话术里有多少个具体数字——参考版有 11 个。数字就是验收标准；「一些怪」「适量伤害」都不是需求。</p>
+      </div></details>
+      <div class="selfcheck"><label><input type="checkbox" data-k="r1c1">有五段式骨架</label><label><input type="checkbox" data-k="r1c2">数值全部具体</label><label><input type="checkbox" data-k="r1c3">写明了不做什么</label></div>
+    </div>
+  </div>
+
+  <!-- R2 -->
+  <div class="round" data-r="r2">
+    <div class="head"><span class="rb">R2</span><h2>波次与成长：数值进配置表</h2><span class="rt">第 1 天下午</span></div>
+    <div class="body">
+      <div class="scene"><b>情境：</b>第一版能玩了，但只有一波。你要扩成 5 波 + BOSS，并且让数值写在一张表里——以后调平衡的是策划改表，不是求 AI 翻代码。</div>
+      <p class="task">✍ 写出这轮指令（提示：难度曲线怎么表达？怎么防止它顺手改塔？）：</p>
+      <textarea class="mine" data-k="r2" placeholder="在现有塔防基础上只改波次系统……"></textarea>
+      <div class="wlines"><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="task">✍ 验收点（提示：你怎么证明 5 波数值真的和表一致？）：</p>
+      <div class="accept-mine"><input data-k="r2a1" placeholder="验收点 1"><input data-k="r2a2" placeholder="验收点 2"><input data-k="r2a3" placeholder="验收点 3"></div>
+      <div class="wlines three"><i></i><i></i><i></i></div>
+      <details><summary>对照参考话术与点评</summary><div class="ans">
+        <div class="ref"><button class="copy">复制</button>在现有塔防基础上只改波次系统：
+- 改为 5 波，第 n 波怪物数量 8+2n，血量系数依次为 1 / 1.3 / 1.6 / 2 / 2.6，第 5 波最后 1 只为 BOSS（500 血、速度减半）；
+- 把以上数值写进文件顶部一个 WAVES 配置表里，逻辑代码只读表，不写死数字；
+- 界面显示「第 x/5 波」和下一波倒计时 3 秒。
+禁改：塔的数值、路线、建造点。完成后逐波截图或列日志给我看每波实际刷出数量和血量。</div>
+        <p class="comment">点评：关键动作是「逻辑只读表」+「列日志给我看」——前者让数值可调，后者让数值可验。你的版本如果只说「做成 5 波」，验收时只能凭感觉。</p>
+      </div></details>
+      <div class="selfcheck"><label><input type="checkbox" data-k="r2c1">数值进配置表</label><label><input type="checkbox" data-k="r2c2">有禁改范围</label><label><input type="checkbox" data-k="r2c3">要求日志/截图证据</label></div>
+    </div>
+  </div>
+
+  <!-- R3 -->
+  <div class="round" data-r="r3">
+    <div class="head"><span class="rb">R3</span><h2>塔流派：给玩家一个真选择</h2><span class="rt">第 2 天上午</span></div>
+    <div class="body">
+      <div class="scene"><b>情境：</b>波次有了，现在加两种新塔（炮塔范围、冰塔减速）和三级升级线。这一轮真正验证的是你的立项命题——「流派组合决定打法」到底成不成立。</div>
+      <p class="task">✍ 写出这轮指令（提示：升级线的价值原则要说清，不然 AI 会乱填数）：</p>
+      <textarea class="mine" data-k="r3" placeholder="新增两种塔和升级系统，数值进同一个配置表……"></textarea>
+      <div class="wlines"><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="task">✍ 验收点（提示：怎么证明「不同流派体验不同」？）：</p>
+      <div class="accept-mine"><input data-k="r3a1" placeholder="验收点 1"><input data-k="r3a2" placeholder="验收点 2"><input data-k="r3a3" placeholder="验收点 3"></div>
+      <div class="wlines three"><i></i><i></i><i></i></div>
+      <details><summary>对照参考话术与点评</summary><div class="ans">
+        <div class="ref"><button class="copy">复制</button>新增两种塔和升级系统，数值进同一个配置表：
+- 炮塔：造价 80，每 1.5 秒一发，范围 40 内群体 15 伤害；冰塔：造价 60，不造成伤害，命中减速 40% 持续 1.5 秒；
+- 每种塔可升 3 级，升级费用和数值曲线你在配置表里给出，原则是「升满级 ≈ 三座一级塔的价值，但占一个建造点」；
+- 建造点点击后弹出选择界面。
+禁改：怪物路径、波次表、结算规则。完成后列出三种塔各级 DPS/效果对照表，并说明你用哪一局实测验证。</div>
+        <p class="comment">点评：「让 AI 给数值但你给原则」是策划的核心姿势——原则是「满级≈三座一级但占格子」，数字由它填、由你验。验收用两种流派各打一局，而不是只看能运行。</p>
+      </div></details>
+      <div class="selfcheck"><label><input type="checkbox" data-k="r3c1">给了数值原则</label><label><input type="checkbox" data-k="r3c2">有禁改范围</label><label><input type="checkbox" data-k="r3c3">验收覆盖玩法命题</label></div>
+    </div>
+  </div>
+
+  <!-- R4 -->
+  <div class="round" data-r="r4">
+    <div class="head"><span class="rb">R4</span><h2>英雄入场：RPG 味道的来源</h2><span class="rt">第 2 天下午</span></div>
+    <div class="body">
+      <div class="scene"><b>情境：</b>三种塔运转正常。现在加魔兽味最关键的一味：可操作英雄 + 主动技能。注意——英雄死了游戏该不该输？这是设计决策，必须你写进指令，AI 不会替你想。</div>
+      <p class="task">✍ 写出这轮指令（提示：操作方式、技能冷却、死亡规则都要写明）：</p>
+      <textarea class="mine" data-k="r4" placeholder="新增一个英雄单位……"></textarea>
+      <div class="wlines"><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="task">✍ 验收点（提示：技能、死亡、英雄不在场，三种情况分开验）：</p>
+      <div class="accept-mine"><input data-k="r4a1" placeholder="验收点 1"><input data-k="r4a2" placeholder="验收点 2"><input data-k="r4a3" placeholder="验收点 3"></div>
+      <div class="wlines three"><i></i><i></i><i></i></div>
+      <details><summary>对照参考话术与点评</summary><div class="ans">
+        <div class="ref"><button class="copy">复制</button>新增一个英雄单位：
+- 点击选中、点地面移动（参考魔兽操作）；普攻近战 30 伤害/秒；
+- 主动技能 Q：对周围 120 范围造成 150 伤害，冷却 8 秒，界面有冷却转圈；
+- 英雄血量 600，死亡不判负，10 秒后在基地复活；
+- 英雄和塔的数值同样进配置表。
+禁改：三种塔、波次表、基地生命。完成后告诉我：英雄操作、技能释放、死亡复活各怎么试玩验证。</div>
+        <p class="comment">点评：「死亡不判负」让玩家敢操作——这就是体验设计。检查你的版本：有没有写英雄死了会怎样？没写，AI 就替你决定了。</p>
+      </div></details>
+      <div class="selfcheck"><label><input type="checkbox" data-k="r4c1">死亡规则是我定的</label><label><input type="checkbox" data-k="r4c2">数值进配置表</label><label><input type="checkbox" data-k="r4c3">验收分三种情况</label></div>
+    </div>
+  </div>
+
+  <!-- R5 -->
+  <div class="round" data-r="r5">
+    <div class="head"><span class="rb">R5</span><h2>经济闭环：让每一金币都有出处</h2><span class="rt">第 3 天上午</span></div>
+    <div class="body">
+      <div class="scene"><b>情境：</b>战斗好看了，但玩家不知道金币从哪来、该攒还是该花。加击杀奖励、波次结算、界面常显——经济系统是塔防的隐形主角。</div>
+      <p class="task">✍ 写出这轮指令（提示：怎么让 AI 交一份你能抽查的经济流水？）：</p>
+      <textarea class="mine" data-k="r5" placeholder="只改经济系统……"></textarea>
+      <div class="wlines"><i></i><i></i><i></i><i></i></div>
+      <p class="task">✍ 验收点（提示：界面看到的不算，流水对得上才算）：</p>
+      <div class="accept-mine"><input data-k="r5a1" placeholder="验收点 1"><input data-k="r5a2" placeholder="验收点 2"><input data-k="r5a3" placeholder="验收点 3"></div>
+      <div class="wlines three"><i></i><i></i><i></i></div>
+      <details><summary>对照参考话术与点评</summary><div class="ans">
+        <div class="ref"><button class="copy">复制</button>只改经济系统：
+- 普通怪击杀 +8 金，BOSS +100 金；每波清完额外 +30 金；
+- 界面常显当前金币、本波已得金币；
+- 数值进配置表，并在结算画面显示本局总收入。
+禁改：塔与英雄的战斗数值。完成后给我一局的经济流水日志（时间、来源、金额）。</div>
+        <p class="comment">点评：经济系统唯一可靠的验收方式是流水日志抽查——「时间、来源、金额」三列缺一不可。你的版本有没有要求流水？</p>
+      </div></details>
+      <div class="selfcheck"><label><input type="checkbox" data-k="r5c1">只改一个系统</label><label><input type="checkbox" data-k="r5c2">要求流水日志</label><label><input type="checkbox" data-k="r5c3">验收含抽查动作</label></div>
+    </div>
+  </div>
+
+  <!-- R6 -->
+  <div class="round" data-r="r6">
+    <div class="head"><span class="rb">R6</span><h2>手感与表现：只动表现层</h2><span class="rt">第 3 天下午</span></div>
+    <div class="body">
+      <div class="scene"><b>情境：</b>玩法成立了，现在让它「爽」：弹道、血条、伤害飘字、技能指示圈。最大风险是美化时顺手改坏数值——内部项目「方块英雄」的果酱印案例就是专门处理这个问题。</div>
+      <p class="task">✍ 写出这轮指令（提示：用「改动前后日志一致」来锁死数值）：</p>
+      <textarea class="mine" data-k="r6" placeholder="只改表现层，一行战斗数值都不许动……"></textarea>
+      <div class="wlines"><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="task">✍ 验收点（提示：手感看画面，数值看日志）：</p>
+      <div class="accept-mine"><input data-k="r6a1" placeholder="验收点 1"><input data-k="r6a2" placeholder="验收点 2"><input data-k="r6a3" placeholder="验收点 3"></div>
+      <div class="wlines three"><i></i><i></i><i></i></div>
+      <details><summary>对照参考话术与点评</summary><div class="ans">
+        <div class="ref"><button class="copy">复制</button>只改表现层，一行战斗数值都不许动：
+- 箭塔/炮塔攻击加可见弹道（飞行 0.15 秒）；怪物头顶加血条；
+- 伤害以飘字显示（物理白色、技能金色），0.6 秒上浮消失；
+- 英雄 Q 技能加范围指示圈和释放闪光；
+- 音效用 WebAudio 合成的占位音，不引外部资源。
+验收标准：改动前后各打一局第 3 波，怪物死亡时间点和总时长应完全一致——用日志证明表现层没有碰数值。</div>
+        <p class="comment">点评：「改动前后死亡时间戳一致」是表现层改动的黄金验收式。你的版本如果只写「玩起来要一样」，就无法证明一样。</p>
+      </div></details>
+      <div class="selfcheck"><label><input type="checkbox" data-k="r6c1">明确只改表现层</label><label><input type="checkbox" data-k="r6c2">有前后对照验收</label><label><input type="checkbox" data-k="r6c3">数值锁死有证据</label></div>
+    </div>
+  </div>
+
+  <!-- R7 -->
+  <div class="round boss" data-r="r7">
+    <div class="head"><span class="rb">R7</span><h2>验收与调平衡：收官动作</h2><span class="rt">第 3 天晚上</span></div>
+    <div class="body">
+      <div class="scene"><b>情境：</b>功能齐了。最后半天不干新功能：三局完整试玩记录、找到压力断层的波次、一次只改一个数的平衡调整、制作记录归档。</div>
+      <p class="task">✍ 写出这轮指令（提示：先给数据再提方案；一次只改一个数；最后归档）：</p>
+      <textarea class="mine" data-k="r7" placeholder="现在做验收，不改任何代码……"></textarea>
+      <div class="wlines"><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="task">✍ 验收点（提示：三局记录表 + 调整可回溯 + 记录可交接）：</p>
+      <div class="accept-mine"><input data-k="r7a1" placeholder="验收点 1"><input data-k="r7a2" placeholder="验收点 2"><input data-k="r7a3" placeholder="验收点 3"></div>
+      <div class="wlines three"><i></i><i></i><i></i></div>
+      <details><summary>对照参考话术与点评</summary><div class="ans">
+        <div class="ref"><button class="copy">复制</button>现在做验收，不改任何代码：
+完整试玩 3 局并输出记录表：每局的流派选择、漏怪数、基地剩余命、剩余金币、英雄技能使用次数、第几波压力最大。
+如果数据显示第 3 波明显压力断层，先只提一个最小调整方案（改配置表里的一个数），说明预期影响和验证方法，等我确认再改。
+最后写制作记录.txt：入口、当前规则、各轮改动、已验/未验项、下一轮只做的一件事。</div>
+        <p class="comment">点评：收官轮的价值是「可交接」——明天你或同事接手，看记录就能继续。「先给数据再提一个最小方案」挡住了 AI 一口气改五个数的冲动。</p>
+      </div></details>
+      <div class="selfcheck"><label><input type="checkbox" data-k="r7c1">先要数据再改动</label><label><input type="checkbox" data-k="r7c2">一次只改一个数</label><label><input type="checkbox" data-k="r7c3">有归档交接动作</label></div>
+    </div>
+  </div>
+
+  <div class="finish">
+    <span class="pix">FINISH · 完成后</span>
+    <h2 style="margin-top:8px">导出你的练习记录，交作业时一起带上</h2>
+    <p style="color:var(--muted);font-size:15px">点击顶部「导出我的练习记录」会生成一份 txt：你写的八轮指令 + 验收点 + 自评结果。作业要求见「体验实验室 → 学员作业」章节；塔防八轮挑战是其中的进阶档。</p>
+  </div>
+</div>
+
+<footer><div class="wrap">
+  <p>练习单进度只存在你自己的浏览器里（localStorage），打印版会隐藏输入框并给出书写横线。参考话术与「体验实验室 → 塔防实操拆解」一致，核对日期 2026-09-07。</p>
+</div></footer>
+
+<script>
+(function(){
+'use strict';
+var KEY='td-worksheet-v1';
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
+function store(s){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
+var state=load();
+var fields=Array.prototype.slice.call(document.querySelectorAll('[data-k]'));
+fields.forEach(function(el){
+  var k=el.getAttribute('data-k');
+  if(state[k]!==undefined){
+    if(el.type==='checkbox')el.checked=!!state[k];else el.value=state[k];
+  }
+  el.addEventListener('input',function(){
+    state[k]=el.type==='checkbox'?el.checked:el.value;store(state);update();
+  });
+});
+function roundDone(r){
+  var t=(state[r]||'').trim();
+  var a=[state[r+'a1'],state[r+'a2'],state[r+'a3']].filter(function(x){return x&&x.trim()}).length;
+  return t.length>=10&&a>=2;
+}
+function update(){
+  var done=0;
+  ['r0','r1','r2','r3','r4','r5','r6','r7'].forEach(function(r){
+    var ok=roundDone(r);if(ok)done++;
+    var el=document.querySelector('.round[data-r="'+r+'"]');
+    if(el)el.classList.toggle('done',ok);
+  });
+  document.getElementById('pbar').style.width=(done/8*100)+'%';
+  document.getElementById('ptext').textContent='已完成 '+done+' / 8 轮';
+}
+update();
+
+document.querySelectorAll('.ref .copy').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var box=btn.parentElement;
+    var txt=Array.prototype.filter.call(box.childNodes,function(n){return n.nodeType===3}).map(function(n){return n.textContent}).join('').trim();
+    function done(){btn.textContent='已复制 ✓';setTimeout(function(){btn.textContent='复制'},1500)}
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(done,done);
+    else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta);done()}
+  });
+});
+
+var TITLES={r0:'R0 立项：先砍范围',r1:'R1 最小循环',r2:'R2 波次与成长',r3:'R3 塔流派',r4:'R4 英雄入场',r5:'R5 经济闭环',r6:'R6 手感与表现',r7:'R7 验收与调平衡'};
+document.getElementById('exportBtn').addEventListener('click',function(){
+  var L=[];
+  L.push('塔防实操练习单 · 我的练习记录');
+  L.push('导出时间：'+new Date().toLocaleString());
+  L.push('==========================================');
+  ['r0','r1','r2','r3','r4','r5','r6','r7'].forEach(function(r){
+    L.push('');
+    L.push('【'+TITLES[r]+'】'+(roundDone(r)?'（已完成）':'（未完成）'));
+    L.push('我写的指令：');
+    L.push((state[r]||'').trim()||'（未填写）');
+    L.push('我写的验收点：');
+    [1,2,3].forEach(function(i){
+      var v=(state[r+'a'+i]||'').trim();
+      L.push('  '+i+'. '+(v||'（未填写）'));
+    });
+    var checks=[state[r+'c1'],state[r+'c2'],state[r+'c3']].map(function(c){return c?'✓':'✗'}).join(' ');
+    L.push('自评：'+checks);
+  });
+  var blob=new Blob([L.join('\n')],{type:'text/plain;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='塔防实操练习记录.txt';
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);
+});
+document.body.setAttribute('data-ready','1');
+document.title+=' · OK';
+})();
+</script>
+</body>
+</html>

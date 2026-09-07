@@ -1,0 +1,1607 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>体验实验室 · 从 0 搓出你的第一个 AI 游戏 Demo</title>
+<link rel="icon" href="assets/favicon.svg">
+<style>
+@font-face{font-family:Noto;src:url('assets/fonts/NotoSansSC.ttf');font-display:swap}
+@font-face{font-family:Pixel;src:url('assets/fonts/PressStart2P-Regular.ttf');font-display:swap}
+:root{
+  --bg:#101b21;--bg2:#152430;--panel:#1b3038;--panel2:#223b42;
+  --ink:#f9ebcd;--muted:#b5c8bd;--dim:#8aa096;
+  --gold:#ffd17c;--green:#c5e1bd;--cyan:#9fd8d0;--coral:#ff9a86;--purple:#d3b8ee;--lime:#cfe8a0;
+  --line:#3a5451;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:17px/1.85 Noto,'Microsoft YaHei',sans-serif;background:var(--bg);color:var(--ink)}
+h1,h2,h3,h4{line-height:1.4;margin:0 0 .4em}
+h1{font-size:clamp(30px,4.6vw,52px)}
+h2{font-size:clamp(24px,3vw,34px);color:var(--gold)}
+h3{font-size:21px;color:var(--green)}
+p{margin:.5em 0}
+a{color:var(--cyan)}
+code,kbd{font-family:ui-monospace,Consolas,monospace;background:#0b1418;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:14px;color:var(--gold)}
+.pix{font-family:Pixel,monospace;font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase}
+.wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+section{padding:64px 0 40px;border-top:1px dashed var(--line)}
+section:first-of-type{border-top:0}
+
+/* top nav */
+.topnav{position:sticky;top:0;z-index:50;background:rgba(16,27,33,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.topnav .wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.topnav a{color:var(--muted);text-decoration:none;font-size:14px;padding:6px 11px;border-radius:6px;white-space:nowrap}
+.topnav a:hover{color:var(--gold);background:var(--panel)}
+.topnav .home{color:var(--gold);font-weight:bold}
+.topnav .spacer{flex:1}
+
+/* hero */
+.hero{padding:72px 0 56px;background:
+  radial-gradient(1000px 420px at 85% -10%,rgba(255,209,124,.10),transparent 60%),
+  radial-gradient(800px 380px at 8% 110%,rgba(159,216,208,.08),transparent 60%),var(--bg)}
+.hero .goal{display:inline-block;background:var(--gold);color:#243b40;font-weight:bold;padding:6px 16px;border-radius:4px;margin-bottom:22px;box-shadow:4px 4px #091823}
+.hero p.lead{font-size:20px;color:var(--muted);max-width:760px}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+.btn{display:inline-block;padding:13px 26px;border-radius:8px;text-decoration:none;font-weight:bold;border:0;cursor:pointer;font-size:16px;font-family:inherit}
+.btn-gold{background:var(--gold);color:#243b40;box-shadow:4px 4px #091823}
+.btn-gold:hover{filter:brightness(1.08)}
+.btn-ghost{background:transparent;color:var(--green);border:1px solid var(--line)}
+.btn-ghost:hover{border-color:var(--green)}
+.hero-stats{display:flex;gap:34px;flex-wrap:wrap;margin-top:44px;color:var(--dim);font-size:14px}
+.hero-stats b{display:block;font-size:26px;color:var(--ink)}
+
+/* generic cards */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:960px){.g3,.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px 22px;box-shadow:5px 5px #091823}
+.card h4{font-size:18px}
+.card p{font-size:15px;color:var(--muted)}
+.tag{display:inline-block;font-size:12.5px;padding:2px 10px;border-radius:20px;border:1px solid var(--line);color:var(--dim);margin-bottom:10px}
+.tag.gold{color:#243b40;background:var(--gold);border-color:var(--gold);font-weight:bold}
+.tag.coral{color:var(--coral);border-color:var(--coral)}
+.tag.cyan{color:var(--cyan);border-color:var(--cyan)}
+.note{border-left:4px solid var(--gold);background:var(--bg2);padding:14px 18px;border-radius:0 8px 8px 0;color:var(--muted);font-size:15px;margin:22px 0}
+.note.coral{border-color:var(--coral)}
+.note.green{border-color:var(--green)}
+.note b{color:var(--ink)}
+
+/* stepper (从0六步) */
+.steps{display:grid;gap:14px;margin-top:26px}
+.step{display:grid;grid-template-columns:64px 1fr auto;gap:18px;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px;box-shadow:4px 4px #091823}
+.step .num{font-family:Pixel,monospace;font-size:15px;color:var(--gold);border:2px solid var(--line);border-radius:10px;width:56px;height:56px;display:flex;align-items:center;justify-content:center}
+.step.done .num{background:var(--gold);color:#243b40;border-color:var(--gold)}
+.step h4{font-size:18px;margin-bottom:4px}
+.step .what{font-size:15px;color:var(--muted)}
+.step .accept{font-size:14px;color:var(--cyan);margin-top:6px}
+.promptbox{position:relative;background:#0b1418;border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-top:12px;font-size:14.5px;color:#d8e6d2;white-space:pre-wrap;line-height:1.8}
+.promptbox .copy{position:absolute;top:8px;right:8px;font-size:12.5px;padding:4px 12px;border-radius:5px;border:1px solid var(--line);background:var(--panel2);color:var(--green);cursor:pointer;font-family:inherit}
+.promptbox .copy:hover{border-color:var(--gold);color:var(--gold)}
+.step-check{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px;color:var(--dim)}
+.step-check input{width:22px;height:22px;accent-color:var(--gold);cursor:pointer}
+@media(max-width:640px){.step{grid-template-columns:48px 1fr}.step-check{grid-column:1/-1;flex-direction:row}}
+
+/* playground */
+.lab{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:22px;margin-top:26px}
+@media(max-width:960px){.lab{grid-template-columns:1fr}}
+.stage{background:#0b1418;border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:5px 5px #091823}
+.stage canvas{width:100%;border-radius:6px;background:#0e1a20;display:block;touch-action:none;outline:none}
+.stage .hud{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px;color:var(--dim);margin-top:10px}
+.stage .hud b{color:var(--gold)}
+.cmd-panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;box-shadow:5px 5px #091823}
+.cmd-card{border:1px solid var(--line);border-radius:8px;padding:13px 15px;margin-bottom:12px;background:var(--bg2)}
+.cmd-card.applied{border-color:var(--green);opacity:.75}
+.cmd-card h5{margin:0 0 5px;font-size:15.5px;color:var(--green)}
+.cmd-card .p{font-size:13.5px;color:var(--muted);font-style:normal;background:#0b1418;border-radius:6px;padding:8px 10px;margin:6px 0;line-height:1.7}
+.cmd-card .send{font-size:13px;padding:6px 16px;border-radius:6px;border:0;background:var(--gold);color:#243b40;font-weight:bold;cursor:pointer;font-family:inherit}
+.cmd-card .send:disabled{background:var(--line);color:var(--dim);cursor:default}
+.agentlog{background:#0b1418;border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-family:ui-monospace,Consolas,monospace;font-size:13px;line-height:1.9;color:#a8c8b2;min-height:120px;max-height:210px;overflow:auto;margin-top:6px}
+.agentlog .sys{color:var(--dim)}
+.agentlog .ok{color:var(--gold)}
+.accept-list{font-size:14.5px;margin-top:10px}
+.accept-list label{display:flex;gap:9px;align-items:flex-start;margin:7px 0;color:var(--muted);cursor:pointer}
+.accept-list input{margin-top:5px;accent-color:var(--gold)}
+.record{width:100%;min-height:190px;background:#0b1418;color:#d8e6d2;border:1px solid var(--line);border-radius:8px;padding:14px;font:13.5px/1.8 ui-monospace,Consolas,monospace;resize:vertical}
+
+/* workflow tables */
+table.flow{width:100%;border-collapse:collapse;font-size:15px;margin-top:18px}
+table.flow th,table.flow td{border:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top}
+table.flow th{background:var(--panel2);color:var(--gold);font-size:14.5px}
+table.flow td{color:var(--muted)}
+table.flow td b{color:var(--ink)}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+@media(max-width:720px){.vs{grid-template-columns:1fr}}
+.vs .bad{border:1px solid var(--coral);border-radius:10px;padding:18px;background:rgba(255,154,134,.05)}
+.vs .good{border:1px solid var(--green);border-radius:10px;padding:18px;background:rgba(197,225,189,.05)}
+.vs h4{margin-bottom:8px}
+.vs .bad h4{color:var(--coral)}.vs .good h4{color:var(--green)}
+.vs p{font-size:15px;color:var(--muted)}
+.fails{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+@media(max-width:720px){.fails{grid-template-columns:1fr}}
+.fail{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:15px 17px;font-size:14.5px}
+.fail b{color:var(--coral)}
+.fail span{display:block;color:var(--green);margin-top:5px}
+
+/* case library */
+.case{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:5px 5px #091823;display:flex;flex-direction:column}
+.case .thumb{aspect-ratio:16/9;background:#0b1418 center/cover no-repeat;position:relative}
+.case .thumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:40px;text-shadow:0 2px 12px #000;background:rgba(0,0,0,.25);text-decoration:none}
+.case .body{padding:16px 18px;flex:1;display:flex;flex-direction:column}
+.case .body h4{font-size:17px;margin-bottom:6px}
+.case .body p{font-size:14px;color:var(--muted);flex:1}
+.case .links{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.case .links a{font-size:13px;padding:5px 13px;border:1px solid var(--line);border-radius:16px;text-decoration:none;color:var(--green)}
+.case .links a:hover{border-color:var(--gold);color:var(--gold)}
+.case video{width:100%;aspect-ratio:16/9;background:#000;display:block}
+.verdict{font-size:13.5px;color:var(--cyan);margin-top:10px;border-top:1px dashed var(--line);padding-top:9px}
+
+/* external refs */
+.ext{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+@media(max-width:820px){.ext{grid-template-columns:1fr}}
+.ext a.card{display:grid;grid-template-columns:150px 1fr;gap:0;padding:0;overflow:hidden;text-decoration:none;color:inherit}
+.ext a.card:hover{border-color:var(--gold)}
+.ext .thumb{aspect-ratio:16/9;background:#0b1418 center/cover no-repeat;min-height:100%}
+.ext .ebody{padding:13px 16px}
+.ext .ebody h4{font-size:15.5px;color:var(--ink);margin-bottom:4px}
+.ext .ebody p{font-size:13px;color:var(--muted);margin:2px 0}
+.ext .ebody .lens{font-size:13px;color:var(--cyan);margin-top:6px}
+.ext .plat{font-size:11.5px;color:var(--dim);letter-spacing:1px}
+.ext .nothumb{display:flex;align-items:center;justify-content:center;background:var(--panel2);color:var(--dim);font-family:Pixel,monospace;font-size:13px;padding:10px;text-align:center}
+@media(max-width:560px){.ext a.card{grid-template-columns:1fr}.ext .thumb{min-height:120px}.ext .nothumb{min-height:70px}}
+
+/* idea composer */
+.composer{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px;margin-top:20px;box-shadow:5px 5px #091823}
+.composer select{font:15px Noto,'Microsoft YaHei',sans-serif;background:#0b1418;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:9px 12px;margin:4px 6px 4px 0;max-width:100%}
+.composer .out{background:#0b1418;border-radius:8px;padding:16px 18px;margin-top:14px;font-size:17px;color:var(--gold);min-height:60px;line-height:1.9}
+
+footer{border-top:1px solid var(--line);padding:34px 0 60px;color:var(--dim);font-size:14px}
+/* ===== ARCADE UPGRADE 2026-09-07 ===== */
+:root{--neon:#4de8ff;--magenta:#ff5da2;--violet:#a06bff;--deep:#0a0e1a}
+body{background:var(--deep)}
+#bgfx{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.scanlines{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 4px)}
+.topnav,.hero,section,footer,.marquee{position:relative;z-index:3}
+.topnav{background:rgba(10,14,26,.92);border-bottom:1px solid rgba(77,232,255,.25);box-shadow:0 2px 24px rgba(77,232,255,.08)}
+.topnav a{border-radius:4px}
+.topnav a:hover{color:var(--neon);text-shadow:0 0 12px rgba(77,232,255,.8);background:rgba(77,232,255,.08)}
+.topnav .home{color:var(--gold);text-shadow:0 0 14px rgba(255,209,124,.6)}
+
+@keyframes flicker{0%,94%,96%,100%{opacity:1}95%{opacity:.55}}
+@keyframes pulseGlow{0%,100%{box-shadow:4px 4px #05080f,0 0 18px rgba(255,209,124,.35)}50%{box-shadow:4px 4px #05080f,0 0 34px rgba(255,209,124,.65)}}
+@keyframes blinkc{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes sweep{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes marq{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+.hero{background:
+  radial-gradient(1100px 480px at 82% -12%,rgba(255,93,162,.14),transparent 62%),
+  radial-gradient(900px 460px at 6% 112%,rgba(77,232,255,.13),transparent 62%),
+  radial-gradient(700px 300px at 50% 40%,rgba(160,107,255,.07),transparent 65%),transparent}
+.hero .goal{animation:flicker 5s infinite;box-shadow:4px 4px #05080f,0 0 22px rgba(255,209,124,.45)}
+h1 .grad{background:linear-gradient(92deg,var(--gold) 10%,var(--neon) 55%,var(--magenta) 95%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(77,232,255,.35))}
+.hero .lead{color:#c3d4e2}
+.coin{margin-top:34px;font-family:Pixel,monospace;font-size:11px;letter-spacing:3px;color:var(--neon);
+  text-shadow:0 0 12px rgba(77,232,255,.8);animation:blinkc 1.6s steps(1) infinite}
+.hero-stats b{background:linear-gradient(180deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 10px rgba(255,209,124,.4))}
+
+.marquee{overflow:hidden;border-top:1px solid rgba(77,232,255,.25);border-bottom:1px solid rgba(77,232,255,.25);
+  background:linear-gradient(90deg,rgba(77,232,255,.06),rgba(255,93,162,.06));padding:10px 0}
+.marquee-in{display:flex;gap:34px;width:max-content;animation:marq 26s linear infinite;
+  font-family:Pixel,monospace;font-size:12px;letter-spacing:3px;color:var(--neon);white-space:nowrap}
+.marquee-in i{color:var(--magenta);font-style:normal}
+
+section{border-top:1px solid transparent;border-image:linear-gradient(90deg,transparent,rgba(77,232,255,.35),transparent) 1}
+.pix{color:var(--neon);text-shadow:0 0 10px rgba(77,232,255,.7)}
+h2{background:linear-gradient(92deg,var(--gold),#ffe9b8 60%,var(--neon));-webkit-background-clip:text;background-clip:text;color:transparent}
+h2::after{content:"";display:block;height:3px;width:120px;margin-top:10px;border-radius:2px;
+  background:linear-gradient(90deg,var(--neon),var(--magenta),transparent);
+  box-shadow:0 0 12px rgba(77,232,255,.6)}
+
+.card{background:rgba(21,32,44,.72);border:1px solid rgba(77,232,255,.16);backdrop-filter:blur(3px);
+  box-shadow:5px 5px #05080f;transition:transform .25s,box-shadow .25s,border-color .25s}
+.card:hover{transform:translateY(-4px);border-color:rgba(77,232,255,.5);
+  box-shadow:5px 8px #05080f,0 0 26px rgba(77,232,255,.18)}
+.tag{border-color:rgba(77,232,255,.4);color:#9db8c4}
+.note{background:rgba(21,32,44,.8);box-shadow:4px 4px #05080f}
+
+.btn{border-radius:6px;transition:transform .15s,box-shadow .2s,filter .2s;position:relative}
+.btn-gold{background:linear-gradient(180deg,#ffe3a1,var(--gold) 55%,#e8ae4e);color:#2a1e08;
+  box-shadow:4px 4px #05080f,0 0 18px rgba(255,209,124,.35);animation:pulseGlow 3.2s infinite}
+.btn-gold:hover{transform:translateY(-2px)}
+.btn-gold:active{transform:translate(2px,2px);box-shadow:2px 2px #05080f}
+.btn-ghost{border-color:rgba(77,232,255,.4);color:var(--green)}
+.btn-ghost:hover{border-color:var(--neon);color:var(--neon);box-shadow:0 0 16px rgba(77,232,255,.25)}
+
+.step{background:rgba(21,32,44,.75);border-color:rgba(77,232,255,.14);box-shadow:4px 4px #05080f;transition:border-color .25s,box-shadow .25s}
+.step:hover{border-color:rgba(77,232,255,.45)}
+.step .num{border-color:rgba(77,232,255,.4);color:var(--neon);text-shadow:0 0 8px rgba(77,232,255,.8)}
+.step.done .num{background:linear-gradient(180deg,#ffe3a1,var(--gold));color:#2a1e08;text-shadow:none;
+  box-shadow:0 0 18px rgba(255,209,124,.55)}
+.promptbox{border-color:rgba(77,232,255,.2);border-left:3px solid var(--neon);color:#b9e8c8;
+  box-shadow:inset 0 0 30px rgba(0,0,0,.5)}
+.promptbox .copy:hover{border-color:var(--neon);color:var(--neon);box-shadow:0 0 12px rgba(77,232,255,.3)}
+
+.stage,.cmd-panel{background:rgba(11,20,26,.9);border-color:rgba(77,232,255,.25);box-shadow:5px 5px #05080f,0 0 40px rgba(77,232,255,.07)}
+.cmd-card{border-color:rgba(77,232,255,.18);background:rgba(21,32,44,.7);transition:border-color .2s,transform .2s}
+.cmd-card:hover{border-color:rgba(255,209,124,.5);transform:translateX(3px)}
+.cmd-card.applied{border-color:rgba(197,225,189,.6)}
+.cmd-card .send{background:linear-gradient(180deg,#ffe3a1,var(--gold) 60%,#e8ae4e);color:#2a1e08;
+  box-shadow:2px 3px #05080f;transition:transform .12s}
+.cmd-card .send:not(:disabled):hover{transform:translateY(-1px)}
+.cmd-card .send:not(:disabled):active{transform:translate(1px,2px);box-shadow:1px 1px #05080f}
+.agentlog{color:#9fe6b8;text-shadow:0 0 6px rgba(120,255,170,.25)}
+.agentlog .ok{color:var(--gold)}
+.agentlog .cur{display:inline-block;width:8px;height:14px;background:#9fe6b8;vertical-align:-2px;animation:blinkc 1s steps(1) infinite}
+
+table.flow th{background:linear-gradient(180deg,rgba(77,232,255,.14),rgba(77,232,255,.05));color:var(--neon)}
+table.flow td{background:rgba(21,32,44,.5)}
+.vs .bad{border-color:rgba(255,93,162,.5);background:rgba(255,93,162,.06);box-shadow:4px 4px #05080f}
+.vs .good{border-color:rgba(197,225,189,.5);background:rgba(197,225,189,.06);box-shadow:4px 4px #05080f}
+.fail{background:rgba(21,32,44,.75);box-shadow:3px 3px #05080f;transition:border-color .2s,transform .2s}
+.fail:hover{border-color:var(--magenta);transform:translateY(-2px)}
+.fail b{color:var(--magenta)}
+
+.case{background:rgba(21,32,44,.75);border-color:rgba(77,232,255,.16);box-shadow:5px 5px #05080f;transition:transform .25s,box-shadow .25s,border-color .25s}
+.case:hover{transform:translateY(-5px);border-color:rgba(255,209,124,.55);box-shadow:5px 9px #05080f,0 0 30px rgba(255,209,124,.16)}
+.case:hover .thumb{filter:saturate(1.2) brightness(1.06)}
+.case .thumb{transition:filter .3s}
+.case .links a{transition:all .2s}
+.case .links a:hover{border-color:var(--gold);color:var(--gold);box-shadow:0 0 12px rgba(255,209,124,.35)}
+
+.ext a.card{background:rgba(21,32,44,.75);transition:transform .25s,border-color .25s,box-shadow .25s}
+.ext a.card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:5px 9px #05080f,0 0 26px rgba(255,209,124,.15)}
+.ext .nothumb{color:var(--neon);text-shadow:0 0 10px rgba(77,232,255,.7);background:rgba(77,232,255,.05)}
+
+.composer{background:rgba(21,32,44,.8);border-color:rgba(160,107,255,.4);box-shadow:5px 5px #05080f,0 0 30px rgba(160,107,255,.1)}
+.composer select{border-color:rgba(160,107,255,.5);transition:border-color .2s,box-shadow .2s}
+.composer select:hover,.composer select:focus{border-color:var(--violet);box-shadow:0 0 12px rgba(160,107,255,.35);outline:none}
+.composer .out{border:1px dashed rgba(255,209,124,.4);color:var(--gold);text-shadow:0 0 10px rgba(255,209,124,.3)}
+
+/* 塔防实操拆解 */
+.tdl{position:relative;margin-top:30px;padding-left:34px}
+.tdl::before{content:"";position:absolute;left:10px;top:8px;bottom:8px;width:2px;
+  background:linear-gradient(180deg,var(--neon),var(--violet),var(--magenta));box-shadow:0 0 10px rgba(77,232,255,.5)}
+.td-round{position:relative;margin-bottom:22px;background:rgba(21,32,44,.78);border:1px solid rgba(77,232,255,.18);
+  border-radius:10px;padding:18px 22px;box-shadow:5px 5px #05080f;transition:border-color .25s,transform .25s}
+.td-round:hover{border-color:rgba(255,209,124,.5);transform:translateX(4px)}
+.td-round::before{content:"";position:absolute;left:-30px;top:24px;width:14px;height:14px;border-radius:50%;
+  background:var(--deep);border:3px solid var(--neon);box-shadow:0 0 12px rgba(77,232,255,.8)}
+.td-round.boss::before{border-color:var(--magenta);box-shadow:0 0 14px rgba(255,93,162,.9)}
+.td-round .rh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.td-round .rb{font-family:Pixel,monospace;font-size:12px;color:var(--deep);background:linear-gradient(180deg,#9ff0ff,var(--neon));
+  padding:5px 10px;border-radius:5px;letter-spacing:1px;box-shadow:0 0 14px rgba(77,232,255,.5)}
+.td-round.boss .rb{background:linear-gradient(180deg,#ff9ec4,var(--magenta));box-shadow:0 0 14px rgba(255,93,162,.6)}
+.td-round h4{font-size:19px;margin:0}
+.td-round .rt{font-size:13px;color:var(--dim)}
+.td-round .goal-line{font-size:15px;color:var(--muted);margin:8px 0 2px}
+.td-round .why{font-size:14px;color:var(--cyan);border-left:3px solid var(--violet);padding-left:12px;margin-top:12px}
+.td-round .accept{color:var(--green);font-size:14px;margin-top:8px}
+.hpbar{height:10px;border-radius:5px;background:#0b1418;border:1px solid var(--line);overflow:hidden;margin-top:14px}
+.hpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--neon),var(--violet),var(--magenta));box-shadow:0 0 12px rgba(160,107,255,.8)}
+
+/* 实操拆解配图 */
+.diagram{margin:14px 0 6px;background:rgba(11,20,24,.78);border:1px solid rgba(77,232,255,.22);border-radius:10px;padding:12px;box-shadow:inset 0 0 30px rgba(0,0,0,.45)}
+.diagram svg{width:100%;height:auto;display:block}
+.diagram figcaption{font-size:12.5px;color:var(--dim);text-align:center;padding-top:8px;font-family:Noto,'Microsoft YaHei',sans-serif}
+.diagram text{font-family:Noto,'Microsoft YaHei',sans-serif}
+.diagram .px{font-family:Pixel,monospace;letter-spacing:1px}
+@keyframes ringpulse{0%,100%{opacity:.5}50%{opacity:1}}
+.diagram .pulse{animation:ringpulse 2.2s infinite}
+
+/* ===== JRPG / ANIME LAYER 2026-09-07 ===== */
+:root{--sakura:#ffb7d5;--sky:#7ecfff;--lav:#c9a7ff}
+body{background:
+  radial-gradient(1200px 500px at 50% -10%,rgba(201,167,255,.10),transparent 60%),var(--deep)}
+
+/* 章节 = 任务看板 */
+section .pix::after{letter-spacing:2px;margin-left:10px;color:var(--sakura);text-shadow:0 0 10px rgba(255,183,213,.7)}
+#why .pix::after{content:"· クエスト概要"}
+#zero .pix::after{content:"· 冒険の始まり"}
+#play .pix::after{content:"· 実践モード"}
+#flow .pix::after{content:"· パーティ編成"}
+#tdcase .pix::after{content:"· 攻略手順"}
+#prompts .pix::after{content:"· スキル帳"}
+#cases .pix::after{content:"· ギャラリー"}
+#external .pix::after{content:"· 異世界情報"}
+#innovation .pix::after{content:"· 覚醒"}
+#homework .pix::after{content:"· 宿題クエスト"}
+section h2{position:relative}
+section h2::before{content:"◆ ";color:var(--magenta);text-shadow:0 0 12px rgba(255,93,162,.9);-webkit-text-fill-color:var(--magenta)}
+
+/* JRPG 对话框：所有 note 变成对话窗 */
+.note{position:relative;border:2px solid rgba(255,209,124,.55);border-radius:12px;
+  background:linear-gradient(180deg,rgba(27,48,56,.96),rgba(16,27,33,.96));
+  box-shadow:0 0 0 3px #0a0e1a,0 0 0 4px rgba(255,209,124,.25),6px 8px rgba(5,8,15,.8);
+  padding:18px 22px;color:#f2e6c8}
+.note.coral{border-color:rgba(255,93,162,.6);box-shadow:0 0 0 3px #0a0e1a,0 0 0 4px rgba(255,93,162,.28),6px 8px rgba(5,8,15,.8)}
+.note.green{border-color:rgba(197,225,189,.6);box-shadow:0 0 0 3px #0a0e1a,0 0 0 4px rgba(197,225,189,.25),6px 8px rgba(5,8,15,.8)}
+.note::before{content:"";position:absolute;left:14px;right:14px;top:6px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent)}
+.note::after{content:"▼";position:absolute;right:16px;bottom:6px;color:var(--gold);
+  animation:blinkc 1.2s steps(1) infinite;font-size:12px}
+.note b{color:#fff}
+
+/* RPG 窗口卡角饰 */
+.card,.case,.td-round,.cmd-panel,.stage,.composer{position:relative}
+.card::before,.case::before{content:"";position:absolute;inset:5px;pointer-events:none;border-radius:6px;
+  background:
+   linear-gradient(var(--gold),var(--gold)) left top/14px 2px,
+   linear-gradient(var(--gold),var(--gold)) left top/2px 14px,
+   linear-gradient(var(--gold),var(--gold)) right top/14px 2px,
+   linear-gradient(var(--gold),var(--gold)) right top/2px 14px,
+   linear-gradient(var(--gold),var(--gold)) left bottom/14px 2px,
+   linear-gradient(var(--gold),var(--gold)) left bottom/2px 14px,
+   linear-gradient(var(--gold),var(--gold)) right bottom/14px 2px,
+   linear-gradient(var(--gold),var(--gold)) right bottom/2px 14px;
+  background-repeat:no-repeat;opacity:.45}
+.card:hover::before,.case:hover::before{opacity:.9}
+
+/* 步骤 = 任务列表 */
+.step .num{border-radius:50%;position:relative}
+.step .num::after{content:"!";position:absolute;top:-11px;right:-7px;font-family:Pixel,monospace;
+  font-size:13px;color:var(--gold);text-shadow:0 0 10px rgba(255,209,124,.9);animation:floaty 2s infinite}
+.step.done .num::after{content:"✓";color:#7dff9b;text-shadow:0 0 10px rgba(125,255,155,.9);animation:none}
+
+/* 指令台 = 技能卡 */
+.cmd-card{border-radius:10px}
+.cmd-card h5::before{content:"✦ ";color:var(--sakura)}
+.cmd-card.applied h5::after{content:" 習得済";font-family:Pixel,monospace;font-size:9px;color:#7dff9b;margin-left:8px;text-shadow:0 0 8px rgba(125,255,155,.8)}
+.agentlog{border:2px solid rgba(197,225,189,.35);border-radius:10px}
+.agentlog::before{content:""}
+
+/* 塔防时间轴节点 → 关卡水晶 */
+.td-round::before{border-radius:3px;transform:rotate(45deg);left:-29px;top:23px;width:13px;height:13px}
+
+/* 魔法阵 & 装饰 */
+.magic-circle{position:absolute;right:-40px;top:-60px;width:340px;height:340px;opacity:.16;pointer-events:none;
+  animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.kana-v{position:absolute;writing-mode:vertical-rl;font-size:15px;letter-spacing:8px;color:rgba(255,183,213,.35);
+  pointer-events:none;user-select:none;font-weight:bold}
+.hero .kana-v{right:26px;top:90px;text-shadow:0 0 14px rgba(255,183,213,.4)}
+
+/* Hero → RPG 状态窗口 */
+.status-win{border:2px solid rgba(255,209,124,.6);border-radius:14px;
+  background:linear-gradient(180deg,rgba(27,48,56,.9),rgba(12,20,28,.92));
+  box-shadow:0 0 0 3px #0a0e1a,0 0 0 5px rgba(255,209,124,.3),0 0 44px rgba(255,183,213,.12),8px 10px rgba(5,8,15,.85);
+  padding:26px 30px;margin-top:34px;max-width:860px;position:relative}
+.status-win .sw-title{position:absolute;top:-13px;left:22px;background:var(--deep);padding:2px 14px;
+  font-family:Pixel,monospace;font-size:10px;letter-spacing:2px;color:var(--sakura);
+  border:1px solid rgba(255,183,213,.5);border-radius:12px;text-shadow:0 0 8px rgba(255,183,213,.7)}
+.stat-rows{display:grid;grid-template-columns:1fr 1fr;gap:8px 30px;margin-top:6px}
+@media(max-width:640px){.stat-rows{grid-template-columns:1fr}}
+.stat{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
+.stat .k{font-family:Pixel,monospace;font-size:10px;color:var(--neon);width:34px}
+.stat .bar{flex:1;height:10px;border-radius:5px;background:#0b1418;border:1px solid var(--line);overflow:hidden}
+.stat .bar i{display:block;height:100%;border-radius:5px}
+.stat .v{width:52px;text-align:right;color:var(--ink);font-weight:bold;font-size:13.5px}
+.bar.hp i{background:linear-gradient(90deg,#7dff9b,#3ddc74);box-shadow:0 0 10px rgba(125,255,155,.6)}
+.bar.mp i{background:linear-gradient(90deg,var(--sky),var(--neon));box-shadow:0 0 10px rgba(126,207,255,.6)}
+.bar.exp i{background:linear-gradient(90deg,var(--gold),var(--sakura));box-shadow:0 0 10px rgba(255,183,213,.6)}
+.bar.sp i{background:linear-gradient(90deg,var(--lav),var(--magenta));box-shadow:0 0 10px rgba(255,93,162,.6)}
+
+/* 史莱姆看板娘 */
+.slime{position:absolute;right:60px;bottom:-6px;width:150px;pointer-events:none;animation:floaty 3.4s ease-in-out infinite;
+  filter:drop-shadow(0 10px 18px rgba(77,232,255,.25))}
+.slime .eyes{transform-origin:center 46%;animation:slimeblink 4.2s infinite}
+@keyframes slimeblink{0%,93%,100%{transform:scaleY(1)}95%,97%{transform:scaleY(.08)}}
+@media(max-width:900px){.slime{display:none}.magic-circle{opacity:.1}}
+
+/* 六步路线图 */
+.questpath{margin:20px 0 6px;background:rgba(11,20,24,.78);border:2px solid rgba(126,207,255,.3);border-radius:12px;
+  padding:12px;box-shadow:inset 0 0 30px rgba(0,0,0,.45)}
+.questpath svg{width:100%;height:auto;display:block}
+.questpath text{font-family:Noto,'Microsoft YaHei',sans-serif}
+
+/* 五段式咏唱阵 */
+.pentagram{margin:20px auto 6px;max-width:640px;display:block}
+
+/* 标题樱花点缀 */
+h2::after{box-shadow:0 0 12px rgba(255,93,162,.6);background:linear-gradient(90deg,var(--sakura),var(--magenta),transparent)}
+
+/* 史莱姆引导员 */
+#guide{position:fixed;right:26px;bottom:14px;z-index:70;pointer-events:none}
+#guideSlime{width:88px;pointer-events:auto;cursor:pointer;animation:floaty 3.4s ease-in-out infinite;
+  filter:drop-shadow(0 8px 14px rgba(77,232,255,.3));transition:transform .2s}
+#guideSlime:hover{transform:scale(1.08)}
+#guideSlime .eyes{transform-origin:center 46%;animation:slimeblink 4.2s infinite}
+#bubble{position:absolute;right:70px;bottom:86px;width:290px;pointer-events:auto;
+  background:linear-gradient(180deg,rgba(27,48,56,.97),rgba(14,24,32,.97));
+  border:2px solid rgba(255,209,124,.65);border-radius:12px;padding:13px 16px;
+  box-shadow:0 0 0 3px #0a0e1a,0 0 0 4px rgba(255,209,124,.25),0 8px 24px rgba(0,0,0,.5);
+  font-size:14px;line-height:1.8;color:#f2e6c8;opacity:0;transform:translateY(8px);
+  transition:opacity .3s,transform .3s}
+#bubble.show{opacity:1;transform:translateY(0)}
+#bubble::after{content:"";position:absolute;right:-24px;bottom:16px;border:12px solid transparent;
+  border-left-color:rgba(255,209,124,.65);border-right:0}
+#bubble .who{font-family:Pixel,monospace;font-size:9px;letter-spacing:2px;color:var(--sakura);
+  text-shadow:0 0 8px rgba(255,183,213,.7);display:block;margin-bottom:5px}
+#bubble .txt{min-height:24px}
+#bubble .caret{display:inline-block;width:7px;height:13px;background:var(--gold);vertical-align:-2px;animation:blinkc .8s steps(1) infinite}
+#bubble .close{position:absolute;top:4px;right:9px;color:var(--dim);cursor:pointer;font-size:13px}
+#bubble .close:hover{color:var(--gold)}
+@media(max-width:760px){#guide{display:none}}
+@media print{#guide{display:none}}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+@media print{.topnav,.hero-actions,.cmd-panel .send,.copy{display:none}body{background:#fff;color:#222}section{break-inside:avoid}}
+</style>
+</head>
+<body>
+<canvas id="bgfx" aria-hidden="true"></canvas>
+<div class="scanlines" aria-hidden="true"></div>
+
+<nav class="topnav"><div class="wrap">
+  <a class="home" href="index.html">← 返回第一课</a>
+  <a href="#why">为什么做 Demo</a>
+  <a href="#zero">从 0 六步</a>
+  <a href="#play">亲手搓一轮</a>
+  <a href="#flow">制作人工作流</a>
+  <a href="#tdcase">塔防实操拆解</a>
+  <a href="#prompts">场景话术库</a>
+  <a href="#cases">内部案例库</a>
+  <a href="#external">外部范例</a>
+  <a href="#innovation">创新思维</a>
+  <a href="#homework">学员作业</a>
+  <span class="spacer"></span>
+  <a href="新手操作手册.html">操作手册</a>
+  <a href="课后参考.html">课后参考</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <svg class="magic-circle" viewBox="0 0 200 200" aria-hidden="true">
+    <g fill="none" stroke="#c9a7ff" stroke-width="1.2">
+      <circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="78" stroke="#ffb7d5"/>
+      <polygon points="100,22 167,139 33,139" stroke="#7ecfff"/>
+      <polygon points="100,178 33,61 167,61" stroke="#7ecfff"/>
+      <circle cx="100" cy="100" r="30" stroke="#ffd17c"/>
+    </g>
+    <g fill="#ffb7d5" font-size="10" text-anchor="middle" font-family="Pixel,monospace">
+      <text x="100" y="14">✦</text><text x="186" y="104">✦</text><text x="14" y="104">✦</text><text x="100" y="196">✦</text>
+    </g>
+  </svg>
+  <span class="kana-v" aria-hidden="true">ゲーム制作・初級クエスト</span>
+  <span class="goal">课程目的：上完课，可以用 AI 搓一个 Demo</span>
+  <h1>从 0 到第一个<span class="grad">游戏 Demo</span>，<br>你只需要会「提需求、试玩、验收」。</h1>
+  <p class="lead">这一页不是听讲，是动手：从空文件夹的六步冒险路线，到不用账号就能练的模拟工作台，再到一个「魔兽风 RPG 塔防」八轮实操攻略——每一步都有能直接抄的话术和要你亲自勾掉的验收。</p>
+  <div class="hero-actions">
+    <a class="btn btn-gold" href="#play">▶ 直接进入动手体验</a>
+    <a class="btn btn-ghost" href="#tdcase">⚔ 看塔防实操拆解</a>
+    <a class="btn btn-ghost" href="#zero">从 0 开始的六步</a>
+  </div>
+  <div class="status-win">
+    <span class="sw-title">NEW PLAYER STATUS</span>
+    <div class="stat-rows">
+      <div class="stat"><span class="k">HP</span><div class="bar hp"><i style="width:100%"></i></div><span class="v">勇气 满</span></div>
+      <div class="stat"><span class="k">MP</span><div class="bar mp"><i style="width:20%"></i></div><span class="v">经验 少</span></div>
+      <div class="stat"><span class="k">EXP</span><div class="bar exp"><i data-fill="88" style="width:0"></i></div><span class="v">本课 +88%</span></div>
+      <div class="stat"><span class="k">SP</span><div class="bar sp"><i data-fill="6" style="width:0"></i></div><span class="v">6 步通关</span></div>
+    </div>
+    <p style="font-size:13px;color:var(--dim);margin:14px 0 0">任务奖励：可玩 Demo ×1 · 制作人工作流 ×1 · 塔防攻略 ×8 轮 · 话术秘籍 ×6</p>
+  </div>
+  <svg class="slime" viewBox="0 0 120 110" aria-hidden="true">
+    <path d="M60 12 C 90 12 108 44 108 68 C 108 92 88 104 60 104 C 32 104 12 92 12 68 C 12 44 30 12 60 12 Z" fill="#7ecfff" opacity=".92"/>
+    <path d="M60 12 C 90 12 108 44 108 68 C 108 92 88 104 60 104 C 32 104 12 92 12 68 C 12 44 30 12 60 12 Z" fill="none" stroke="#4a90c2" stroke-width="3"/>
+    <ellipse cx="42" cy="30" rx="12" ry="7" fill="#fff" opacity=".55" transform="rotate(-18 42 30)"/>
+    <g class="eyes">
+      <circle cx="44" cy="62" r="7" fill="#1b2b33"/><circle cx="46.5" cy="59.5" r="2.6" fill="#fff"/>
+      <circle cx="78" cy="62" r="7" fill="#1b2b33"/><circle cx="80.5" cy="59.5" r="2.6" fill="#fff"/>
+    </g>
+    <circle cx="32" cy="74" r="5" fill="#ff9ec4" opacity=".7"/><circle cx="90" cy="74" r="5" fill="#ff9ec4" opacity=".7"/>
+    <path d="M 52 76 Q 60 84 70 76" fill="none" stroke="#1b2b33" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+  <div class="coin">— PRESS START · 用方向键也能玩下面的小游戏 —</div>
+</div></header>
+
+<div class="marquee" aria-hidden="true"><div class="marquee-in">
+  <span>VIBE CODING</span><i>✦</i><span>从 0 到 DEMO</span><i>✦</i><span>制作人思维</span><i>✦</i><span>提需求 · 试玩 · 验收</span><i>✦</i><span>小步迭代</span><i>✦</i><span>留下证据</span><i>✦</i>
+  <span>VIBE CODING</span><i>✦</i><span>从 0 到 DEMO</span><i>✦</i><span>制作人思维</span><i>✦</i><span>提需求 · 试玩 · 验收</span><i>✦</i><span>小步迭代</span><i>✦</i><span>留下证据</span><i>✦</i>
+</div></div>
+
+<section id="why"><div class="wrap">
+  <span class="pix">WHY DEMO FIRST</span>
+  <h2>为什么先做 Demo，而不是先写策划案</h2>
+  <p style="color:var(--muted);max-width:820px">对新人来说，AI 开发游戏最大的价值不是「省程序员工时」，而是把「想法 → 玩家反馈」的距离从几个月缩短到一个下午。一个能上手玩的 30 秒 Demo，胜过十页描述。</p>
+  <div class="grid g4" style="margin-top:26px">
+    <div class="card"><span class="tag gold">好处 1</span><h4><svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:-3px;margin-right:7px"><circle cx="10" cy="10" r="7" fill="none" stroke="#4de8ff" stroke-width="1.8"/><circle cx="10" cy="10" r="2.6" fill="#4de8ff"/></svg>把争论变成试玩</h4><p>「这个玩法好不好玩」吵不出结果。做成 Demo，每个人玩 30 秒，讨论立刻有了共同对象。</p></div>
+    <div class="card"><span class="tag gold">好处 2</span><h4><svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:-3px;margin-right:7px"><path d="M10 2 L17 5 V10 C17 15 13 18 10 19 C7 18 3 15 3 10 V5 Z" fill="none" stroke="#7dff9b" stroke-width="1.8"/><path d="M7 10 L9.4 12.4 L13.4 7.6" fill="none" stroke="#7dff9b" stroke-width="1.8"/></svg>把风险提前暴露</h4><p>操作手感、规则漏洞、节奏问题，在 Demo 阶段改一次只要一句话；上线前才发现就是事故。</p></div>
+    <div class="card"><span class="tag gold">好处 3</span><h4><svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:-3px;margin-right:7px"><circle cx="10" cy="10" r="7" fill="none" stroke="#ffd17c" stroke-width="1.8"/><circle cx="10" cy="10" r="3.4" fill="none" stroke="#ffd17c" stroke-width="1.5"/><line x1="10" y1="1" x2="10" y2="5" stroke="#ffd17c" stroke-width="1.8"/><line x1="10" y1="15" x2="10" y2="19" stroke="#ffd17c" stroke-width="1.8"/><line x1="1" y1="10" x2="5" y2="10" stroke="#ffd17c" stroke-width="1.8"/><line x1="15" y1="10" x2="19" y2="10" stroke="#ffd17c" stroke-width="1.8"/></svg>把范围锁到最小</h4><p>Demo 强制你回答「最小验证什么」。只验证一个问题，反而更容易找到真正成立的玩法。</p></div>
+    <div class="card"><span class="tag gold">好处 4</span><h4><svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:-3px;margin-right:7px"><path d="M10 1.5 L12.2 7.2 L18.2 7.6 L13.6 11.4 L15.2 17.4 L10 14.2 L4.8 17.4 L6.4 11.4 L1.8 7.6 L7.8 7.2 Z" fill="none" stroke="#ff5da2" stroke-width="1.6"/></svg>让创意被看见</h4><p>校招生没有项目背书时，一个别人能打开就玩的链接，比简历上任何一行字都有说服力。</p></div>
+  </div>
+  <div class="note coral"><b>但 Demo 不能证明一切。</b>它能验证「这条规则是否产生预期的玩家选择」，不能证明留存、付费、量产品质。案例库里的每个项目都标注了它验证了什么、没验证什么——这是制作人看 Demo 的基本功。</div>
+</div></section>
+
+<section id="zero"><div class="wrap">
+  <span class="pix">FROM ZERO · 6 STEPS</span>
+  <h2>从 0 到 Demo：六步走</h2>
+  <p style="color:var(--muted);max-width:820px">以 Codex 桌面端为例（Claude Code 等同理）。每一步都给出可以直接复制的话术和你必须亲自做的验收。完成一步勾一步，进度存在你自己的浏览器里。</p>
+
+  <figure class="diagram questpath"><svg viewBox="0 0 640 160" role="img" aria-label="冒险路线：村庄到宝箱六站">
+    <path d="M 50 118 C 120 60 170 130 240 92 S 340 40 420 88 S 540 120 596 62" fill="none" stroke="#ffb7d5" stroke-width="2.5" stroke-dasharray="6 6" opacity=".8"/>
+    <g font-size="11.5" text-anchor="middle">
+      <g><polygon points="38,104 52,88 66,104" fill="#ffd17c"/><rect x="42" y="104" width="20" height="14" fill="#e8ae4e"/><text x="52" y="140" fill="#b5c8bd">① 村庄·装工具</text></g>
+      <g><polygon points="140,62 152,42 164,62" fill="#3ddc74"/><polygon points="143,74 152,58 161,74" fill="#3ddc74"/><rect x="149" y="74" width="6" height="10" fill="#7a5b3a"/><text x="152" y="140" fill="#b5c8bd">② 森林·绑项目</text></g>
+      <g><path d="M 232 96 A 16 16 0 0 1 264 96 Z" fill="#5a6a66"/><circle cx="248" cy="82" r="3" fill="#4de8ff"/><text x="248" y="140" fill="#b5c8bd">③ 洞窟·发需求</text></g>
+      <g><path d="M 330 58 q 8 -8 16 0 q 8 8 16 0" fill="none" stroke="#7ecfff" stroke-width="2.5"/><path d="M 334 68 q 8 -8 16 0 q 8 8 16 0" fill="none" stroke="#7ecfff" stroke-width="2.5" opacity=".6"/><text x="350" y="140" fill="#b5c8bd">④ 湖泊·小步改</text></g>
+      <g><circle cx="452" cy="66" r="13" fill="none" stroke="#ff5da2" stroke-width="3"/><line x1="452" y1="53" x2="452" y2="45" stroke="#ff5da2" stroke-width="3"/><line x1="452" y1="79" x2="452" y2="87" stroke="#ff5da2" stroke-width="3"/><line x1="439" y1="66" x2="431" y2="66" stroke="#ff5da2" stroke-width="3"/><line x1="465" y1="66" x2="473" y2="66" stroke="#ff5da2" stroke-width="3"/><text x="452" y="140" fill="#b5c8bd">⑤ 遗迹·修故障</text></g>
+      <g><rect x="576" y="46" width="34" height="24" rx="3" fill="#8a6a2f" stroke="#ffd17c" stroke-width="2"/><rect x="576" y="46" width="34" height="8" rx="3" fill="#a8843f"/><circle cx="593" cy="60" r="3.5" fill="#ffd17c"/><text x="593" y="140" fill="#ffd17c">⑥ 宝箱·打包带走</text></g>
+    </g>
+  </svg><figcaption>六站冒险路线：每一站都有可复制的话术宝箱和要你亲自勾掉的验收</figcaption></figure>
+
+  <div class="steps" id="zeroSteps">
+    <div class="step" data-step="s1">
+      <div class="num">01</div>
+      <div><h4>装好工具，建一个空文件夹</h4>
+        <p class="what">安装并登录 Codex 桌面端。在电脑上新建一个空文件夹，例如 <code>我的第一个游戏</code>。空文件夹是你的「项目」，AI 只在这里面读写文件。</p>
+        <p class="accept">✔ 验收：你能说出 AI 被允许操作的是哪个文件夹。</p>
+        <p class="what" style="margin-top:8px">安装过程可对照课件包里的录屏（43MB，可快进）：</p>
+        <video controls preload="none" style="width:100%;max-width:640px;border-radius:8px;background:#000" src="../posters/安装视频-faststart.mp4"></video>
+      </div>
+      <label class="step-check"><input type="checkbox" data-k="s1">完成</label>
+    </div>
+
+    <div class="step" data-step="s2">
+      <div class="num">02</div>
+      <div><h4>把文件夹关联进项目，让 AI 先读现状</h4>
+        <p class="what">在 Codex 里新建项目并选择这个文件夹作为主目录。第一条消息不要急着要游戏，先确认它看对了地方。</p>
+        <div class="promptbox"><button class="copy">复制</button>你正在处理一个网页小游戏项目，工作目录就是当前关联的文件夹。
+先不要写任何代码。请告诉我：你能读写的目录是哪一个？目前里面有什么文件？</div>
+        <p class="accept">✔ 验收：它报出的路径就是你建的文件夹；如果它声称创建了文件而你没看到，直接追问。</p>
+      </div>
+      <label class="step-check"><input type="checkbox" data-k="s2">完成</label>
+    </div>
+
+    <div class="step" data-step="s3">
+      <div class="num">03</div>
+      <div><h4>发出第一条「最小可玩」需求</h4>
+        <p class="what">第一条需求只锁一件事：一个玩家动作 + 一个结果 + 一条验收链。不要说「做一个小游戏」。</p>
+        <div class="promptbox"><button class="copy">复制</button>请在这个文件夹里做一个可以用浏览器直接打开的单文件网页小游戏（index.html）：
+- 玩家用方向键移动一个角色；
+- 碰到星星得 10 分；
+- 一局 30 秒，时间到显示总分，可以重新开始。
+完成后请告诉我文件路径，我自己打开试玩。不要增加商店、关卡、联网等任何其他功能。</div>
+        <p class="accept">✔ 验收：你亲自双击打开 index.html，确认能移动、得分、结束、重开——四项都亲手试过。</p>
+      </div>
+      <label class="step-check"><input type="checkbox" data-k="s3">完成</label>
+    </div>
+
+    <div class="step" data-step="s4">
+      <div class="num">04</div>
+      <div><h4>小步迭代：一轮只改一件事</h4>
+        <p class="what">改之前先复制整个文件夹做备份（例如 <code>我的第一个游戏_30秒备份</code>），再下修改指令。每轮只提一个改动。</p>
+        <div class="promptbox"><button class="copy">复制</button>只把一局的时间从 30 秒改成 45 秒，其他规则、画面、操作都不要变。
+改完请确认：开局和重新开始后都是 45 秒。</div>
+        <p class="accept">✔ 验收：重开一局核对确实是 45 秒；顺便确认计分、结束、重开没有被顺手改坏。</p>
+      </div>
+      <label class="step-check"><input type="checkbox" data-k="s4">完成</label>
+    </div>
+
+    <div class="step" data-step="s5">
+      <div class="num">05</div>
+      <div><h4>出问题：用「操作 → 实际 → 预期 → 范围」反馈</h4>
+        <p class="what">发现不对时，先截图（Win + Shift + S），再把四要素写清楚。不说「有 bug，修一下」。</p>
+        <div class="promptbox"><button class="copy">复制</button>操作：开局后我碰到了第一颗星星。
+实际：分数从 0 变成了 20（见截图）。
+预期：每颗星星只加 10 分。
+范围：只修复计分错误，不要改动其他任何规则和画面。</div>
+        <p class="accept">✔ 验收：修复后重玩，同一颗星星只加 10 分，其余行为与故障前一致。</p>
+      </div>
+      <label class="step-check"><input type="checkbox" data-k="s5">完成</label>
+    </div>
+
+    <div class="step" data-step="s6">
+      <div class="num">06</div>
+      <div><h4>留下制作记录，打包带走</h4>
+        <p class="what">让 AI 把这一轮的事实写成记录，下次接着改不用翻聊天记录。交付时复制整个文件夹并压缩成 ZIP。</p>
+        <div class="promptbox"><button class="copy">复制</button>这一轮先到这里。请在当前文件夹写一份「制作记录.txt」，列出：游戏入口文件、当前规则、本轮改动、我实际检查过的结果和未检查项、下一轮只做的一件事。不记录账号信息，不上传文件。</div>
+        <p class="accept">✔ 验收：把 ZIP 发给同事，对方不解压你的聊天记录也能直接打开玩。</p>
+      </div>
+      <label class="step-check"><input type="checkbox" data-k="s6">完成</label>
+    </div>
+  </div>
+  <div class="note green"><b>走完六步你就已经超过了大多数「只聊不做」的人。</b>下面的模拟工作台让你在没装 Codex 的电脑上，也能先把「下指令 → 试玩 → 验收」的肌肉记忆练出来。</div>
+</div></section>
+
+<section id="play"><div class="wrap">
+  <span class="pix">HANDS-ON · NO INSTALL NEEDED</span>
+  <h2>亲手搓一轮：你就是制作人</h2>
+  <p style="color:var(--muted);max-width:860px">下面左边是一个<b style="color:var(--ink)">真的能玩的网页小游戏</b>（方向键 / WASD 移动，也可以点地面朝点击方向走），右边是「制作人指令台」。每张指令卡都是一条可以原样发给 Codex / Claude 的中文需求——点「发送指令」，模拟 AI 的一轮工作，游戏立即变成新版本，然后由<b style="color:var(--ink)">你</b>试玩验收。这就是 AI 做游戏的核心循环，先在这里练熟。</p>
+
+  <div class="lab">
+    <div class="stage">
+      <canvas id="game" width="640" height="400" tabindex="0" aria-label="收集星星小游戏"></canvas>
+      <div class="hud">
+        <span>得分 <b id="hudScore">0</b></span>
+        <span id="hudBagWrap" style="display:none">背包 <b id="hudBag">0</b>（回基地入账）</span>
+        <span>时间 <b id="hudTime">30</b>s</span>
+        <span>规则版本 <b id="hudVer">第一版</b></span>
+      </div>
+      <div class="hud" style="margin-top:4px"><span id="hudHint">点「发送指令 · 生成第一版」开始 → 然后点画面获得焦点，方向键移动</span></div>
+    </div>
+
+    <div class="cmd-panel">
+      <span class="pix">PRODUCER CONSOLE</span>
+      <h3 style="margin-top:6px">指令台<small style="color:var(--dim);font-size:13px;font-weight:normal">（模拟 AI 执行，真实工具里就是这段话）</small></h3>
+
+      <div class="cmd-card" data-cmd="v1">
+        <h5>① 生成第一版</h5>
+        <div class="p">做一个 30 秒的收集星星小游戏：方向键移动，碰到星星 +10 分，时间到结算，可以重开。</div>
+        <button class="send">发送指令</button>
+      </div>
+      <div class="cmd-card" data-cmd="time">
+        <h5>② 只改一个数字</h5>
+        <div class="p">只把一局从 30 秒改成 45 秒，其他规则不变。开局和重开都要是 45。</div>
+        <button class="send">发送指令</button>
+      </div>
+      <div class="cmd-card" data-cmd="hazard">
+        <h5>③ 加一条危险</h5>
+        <div class="p">增加一个来回巡逻的红色危险块：碰到后人物回到左下基地，已得分数保留，之后 1 秒无敌。</div>
+        <button class="send">发送指令</button>
+      </div>
+      <div class="cmd-card" data-cmd="deposit">
+        <h5>④ 改计分时机（玩法命题）</h5>
+        <div class="p">捡到星星不再立刻加分，改为进入背包；回到基地才入账。若已开启危险块：碰到危险会掉落背包里所有星星。</div>
+        <button class="send">发送指令</button>
+      </div>
+      <div class="cmd-card" data-cmd="bug">
+        <h5>⑤ 故障演练：AI 也会写错</h5>
+        <div class="p">（模拟一次真实事故）AI 误把第一颗星星写成了 +20。发送后去试玩，找到问题，再发送下方的修复反馈。</div>
+        <button class="send">制造故障</button>
+      </div>
+      <div class="cmd-card" data-cmd="fix" style="display:none">
+        <h5>⑤′ 发送修复反馈</h5>
+        <div class="p">操作：碰到左上角第一颗星星。实际：+20（已截图）。预期：每颗 +10。范围：只修计分，不动其他。</div>
+        <button class="send">发送修复反馈</button>
+      </div>
+
+      <span class="pix" style="margin-top:6px;display:block">AGENT LOG（教学模拟）</span>
+      <div class="agentlog" id="agentlog"><div class="sys">等待第一条指令……真实环境中，这里对应 Codex 的任务面板：读文件 → 改文件 → 自检 → 报告。</div></div>
+
+      <div class="accept-list" id="acceptBox" style="display:none">
+        <span class="pix">ACCEPTANCE · 由你验收</span>
+        <div id="acceptItems"></div>
+        <button class="send" id="recordBtn" style="margin-top:8px;background:var(--green);border:0;border-radius:6px;padding:6px 16px;font-weight:bold;cursor:pointer;font-family:inherit" disabled>全部打勾后，记入制作记录</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:22px">
+    <span class="pix">HANDOVER · 制作记录</span>
+    <h3 style="margin-top:6px">每轮结束都要留下什么</h3>
+    <p style="font-size:14.5px;color:var(--muted)">你在上面每验收通过一轮，这里就自动多一条记录——这就是「制作记录.txt」的样子。做完可以直接复制走，下次开新聊天时把它发给 AI 当上下文。</p>
+    <textarea class="record" id="record" readonly>制作记录（模拟）
+==================
+游戏入口：本页左侧画布（真实项目里是你的 index.html）
+当前规则：尚未生成第一版
+</textarea>
+    <div style="margin-top:10px"><button class="btn btn-ghost" id="copyRecord" style="padding:8px 18px;font-size:14px">复制制作记录</button></div>
+  </div>
+
+  <div class="note"><b>练熟了就去真的工具里做一遍：</b>上面 5 张指令卡的话术可以原样复制到 Codex / Claude Code。真机和模拟的唯一区别是——文件真的写进了你的文件夹，所以「亲自打开试玩」这一步永远不能省。</div>
+</div></section>
+
+<section id="tdcase"><div class="wrap">
+  <span class="pix">CASE STUDY · 魔兽风 RPG 塔防</span>
+  <h2>实操拆解：用 AI 做一个魔兽风 RPG 塔防</h2>
+  <p style="color:var(--muted);max-width:880px">前面讲的是原则，这一节给你<b style="color:var(--ink)">完整的一天半实操</b>：假设你要做一个叫《峡谷守卫战》的塔防 Demo——英雄守峡谷口，塔的流派组合决定打法（魔兽 RPG 的味道来自英雄单位）。八轮指令，每轮都给出<b style="color:var(--ink)">可以原样复制给 Codex / Claude Code 的完整话术</b>、这轮结束你要亲手验收什么、以及制作人为什么这样切。这不是理想化剧本：案例库里 Dice Defense 三天五版的录屏，就是同一种节奏的真实记录。</p>
+  <div class="note coral" style="margin-top:16px"><b>先看纪律，再看话术：</b>每轮只推进一个可验证闭环；每轮改完你亲自试玩；跑不起来就让它写 Not Run，不接受「应该可以」。</div>
+
+  <div class="tdl">
+    <div class="td-round">
+      <div class="rh"><span class="rb">R0</span><h4>立项：先砍范围，不动手</h4><span class="rt">30 分钟 · 零代码</span></div>
+      <p class="goal-line">目标：把「魔兽塔防 RPG」缩成一句可验证的体验命题，并写清这一轮不做什么。</p>
+      <figure class="diagram"><svg viewBox="0 0 640 200" role="img" aria-label="立项砍范围示意：一堆想法收束成一句命题">
+        <defs><linearGradient id="r0g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4de8ff"/><stop offset="1" stop-color="#ff5da2"/></linearGradient></defs>
+        <g font-size="13" fill="#b5c8bd">
+          <rect x="18" y="18" width="104" height="26" rx="6" fill="#1b3038" stroke="#3a5451"/><text x="70" y="35" text-anchor="middle">英雄装备</text>
+          <rect x="18" y="54" width="104" height="26" rx="6" fill="#1b3038" stroke="#3a5451"/><text x="70" y="71" text-anchor="middle">天赋树</text>
+          <rect x="18" y="90" width="104" height="26" rx="6" fill="#1b3038" stroke="#3a5451"/><text x="70" y="107" text-anchor="middle">Boss Rush</text>
+          <rect x="18" y="126" width="104" height="26" rx="6" fill="#152030" stroke="#5a3a45"/><text x="70" y="143" text-anchor="middle" fill="#8a7076">抽卡 ✕</text>
+          <rect x="18" y="162" width="104" height="26" rx="6" fill="#152030" stroke="#5a3a45"/><text x="70" y="179" text-anchor="middle" fill="#8a7076">联网对战 ✕</text>
+          <rect x="134" y="54" width="104" height="26" rx="6" fill="#1b3038" stroke="#3a5451"/><text x="186" y="71" text-anchor="middle">商店</text>
+          <rect x="134" y="90" width="104" height="26" rx="6" fill="#152030" stroke="#5a3a45"/><text x="186" y="107" text-anchor="middle" fill="#8a7076">关卡编辑器 ✕</text>
+        </g>
+        <polygon points="270,30 430,82 430,118 270,170" fill="rgba(77,232,255,.07)" stroke="url(#r0g)" stroke-width="2"/>
+        <text x="330" y="104" text-anchor="middle" font-size="12" fill="#4de8ff" class="px">砍</text>
+        <rect x="452" y="66" width="176" height="68" rx="10" fill="rgba(255,209,124,.12)" stroke="#ffd17c" stroke-width="2"/>
+        <text x="540" y="94" text-anchor="middle" font-size="14" fill="#ffd17c">英雄 + 塔流派</text>
+        <text x="540" y="116" text-anchor="middle" font-size="12" fill="#f9ebcd">30 秒可验证的命题</text>
+      </svg><figcaption>立项 = 把十个想法砍成一句命题：灰掉的抽卡、联网、编辑器全部进「不做什么」清单</figcaption></figure>
+      <div class="promptbox"><button class="copy">复制</button>我想做一个魔兽 RPG 味的塔防网页 Demo，命题是：英雄守住峡谷口，塔的流派组合决定打法。
+先不要写代码。请问准我 3 个问题，分别确认：玩家每一分钟在做什么操作、赢和输分别是什么画面、为什么英雄（而不是纯塔）是核心。每个问题给我两个选项，我回答后你整理成一页规则：玩家目标、核心循环、本 Demo 明确不做的内容（不做联网、不做抽卡、不做关卡编辑器）。</div>
+      <p class="accept">✔ 验收：你拿到一页纸规则，且「不做什么」比「做什么」更长——范围感是制作人第一课。</p>
+      <p class="why">制作人批注：AI 最擅长顺着你说「都加上」。立项这一轮的唯一任务就是防止它把 Demo 做成大游戏。</p>
+    </div>
+
+    <div class="td-round">
+      <div class="rh"><span class="rb">R1</span><h4>最小循环：一条路、一波怪、一座塔</h4><span class="rt">第 1 天上午 · 对标 Dice Defense V0.1</span></div>
+      <p class="goal-line">目标：30 秒内能看到「怪沿路线走 → 塔自动攻击 → 怪死光或漏光 → 结算」完整转一圈。</p>
+      <figure class="diagram"><svg viewBox="0 0 640 230" role="img" aria-label="最小循环地图：S形路线、六个建造点、一座箭塔">
+        <rect x="10" y="10" width="620" height="210" rx="10" fill="#0e1a20" stroke="#3a5451"/>
+        <path d="M 40 115 C 140 45 190 185 300 115 S 460 45 540 115" fill="none" stroke="#4a5f58" stroke-width="16" stroke-linecap="round" opacity=".5"/>
+        <path d="M 40 115 C 140 45 190 185 300 115 S 460 45 540 115" fill="none" stroke="#223b42" stroke-width="10" stroke-linecap="round"/>
+        <text x="40" y="88" text-anchor="middle" font-size="12" fill="#4de8ff">入口</text>
+        <rect x="552" y="92" width="58" height="46" rx="6" fill="rgba(255,209,124,.15)" stroke="#ffd17c" stroke-width="2"/>
+        <text x="581" y="120" text-anchor="middle" font-size="12" fill="#ffd17c">基地♥3</text>
+        <g fill="none" stroke="#a06bff" stroke-width="1.6" stroke-dasharray="4 3">
+          <rect x="120" y="150" width="22" height="22" rx="4"/><rect x="180" y="56" width="22" height="22" rx="4"/>
+          <rect x="250" y="150" width="22" height="22" rx="4"/><rect x="330" y="56" width="22" height="22" rx="4"/>
+          <rect x="400" y="150" width="22" height="22" rx="4"/><rect x="470" y="56" width="22" height="22" rx="4"/>
+        </g>
+        <text x="320" y="210" text-anchor="middle" font-size="11" fill="#8aa096">6 个可建造点</text>
+        <circle cx="191" cy="67" r="42" fill="rgba(77,232,255,.06)" stroke="#4de8ff" stroke-dasharray="5 4" class="pulse"/>
+        <rect x="180" y="56" width="22" height="22" rx="4" fill="#4de8ff"/>
+        <text x="191" y="44" text-anchor="middle" font-size="11" fill="#4de8ff">箭塔 · 射程 100</text>
+        <circle cx="300" cy="115" r="8" fill="#ff5da2"/>
+        <rect x="284" y="99" width="32" height="5" rx="2" fill="#3a5451"/><rect x="284" y="99" width="20" height="5" rx="2" fill="#ff5da2"/>
+        <text x="300" y="145" text-anchor="middle" font-size="11" fill="#ff9ec4">怪 · 80 血</text>
+      </svg><figcaption>第一版的全部内容：一条 S 形路线、6 个建造点、1 种塔、1 波 10 只怪——30 秒转完一圈</figcaption></figure>
+      <div class="promptbox"><button class="copy">复制</button>请在当前文件夹做一个单文件网页塔防（index.html），Canvas 实现，最小循环：
+- 地图：固定一张，左侧入口到右侧基地的一条 S 形路线，路边 6 个可建造点；
+- 怪：只有一种，80 血，沿路线匀速走，到终点基地扣 1 命（共 3 命）；
+- 塔：只有一种箭塔，造价 50 金，射程 100，每秒 1 箭、每箭 20 伤害；开局 100 金；
+- 波次：只有 1 波 10 只怪；全部消灭显示胜利，命没了显示失败；可重开。
+不要英雄、不要升级、不要第二种塔。完成后告诉我打开方法，我自己试玩。</div>
+      <p class="accept">✔ 验收：亲手打完一局——怪沿路线走、塔在射程内开火、胜利和失败两种结算都各看到一次。</p>
+      <p class="why">制作人批注：第一版丑没关系。它存在的意义是验证「塔防循环成立」和「AI 能跑通整条链路」，不是好玩。</p>
+    </div>
+
+    <div class="td-round">
+      <div class="rh"><span class="rb">R2</span><h4>波次与成长：数值进配置表</h4><span class="rt">第 1 天下午 · 对标 V0.2</span></div>
+      <p class="goal-line">目标：从 1 波变 5 波，难度曲线写在一张表里，而不是埋在代码里。</p>
+      <figure class="diagram"><svg viewBox="0 0 640 210" role="img" aria-label="五波血量成长柱状图">
+        <line x1="50" y1="170" x2="600" y2="170" stroke="#3a5451" stroke-width="2"/>
+        <g font-size="12" text-anchor="middle">
+          <rect x="70" y="130" width="56" height="40" rx="4" fill="#1b3038" stroke="#4de8ff"/><text x="98" y="122" fill="#b5c8bd">×1.0</text><text x="98" y="190" fill="#8aa096">第1波·10只</text>
+          <rect x="176" y="118" width="56" height="52" rx="4" fill="#1b3038" stroke="#4de8ff"/><text x="204" y="110" fill="#b5c8bd">×1.3</text><text x="204" y="190" fill="#8aa096">第2波·12只</text>
+          <rect x="282" y="106" width="56" height="64" rx="4" fill="#1b3038" stroke="#4de8ff"/><text x="310" y="98" fill="#b5c8bd">×1.6</text><text x="310" y="190" fill="#8aa096">第3波·14只</text>
+          <rect x="388" y="90" width="56" height="80" rx="4" fill="#223b42" stroke="#4de8ff"/><text x="416" y="82" fill="#b5c8bd">×2.0</text><text x="416" y="190" fill="#8aa096">第4波·16只</text>
+          <rect x="494" y="66" width="56" height="104" rx="4" fill="rgba(255,93,162,.18)" stroke="#ff5da2" stroke-width="2"/><text x="522" y="58" fill="#ff9ec4">×2.6</text><text x="522" y="190" fill="#ff9ec4">第5波·BOSS</text>
+        </g>
+        <text x="60" y="30" font-size="12" fill="#4de8ff" class="px">WAVES 配置表</text>
+        <text x="590" y="30" text-anchor="end" font-size="11" fill="#8aa096">逻辑只读表 · 不写死数字</text>
+      </svg><figcaption>难度曲线一眼可见：数量 8+2n、血量系数 1→2.6，第 5 波压一只 500 血半速 BOSS</figcaption></figure>
+      <div class="promptbox"><button class="copy">复制</button>在现有塔防基础上只改波次系统：
+- 改为 5 波，第 n 波怪物数量 8+2n，血量系数依次为 1 / 1.3 / 1.6 / 2 / 2.6，第 5 波最后 1 只为 BOSS（500 血、速度减半）；
+- 把以上数值写进文件顶部一个 WAVES 配置表里，逻辑代码只读表，不写死数字；
+- 界面显示「第 x/5 波」和下一波倒计时 3 秒。
+禁改：塔的数值、路线、建造点。完成后逐波截图或列日志给我看每波实际刷出数量和血量。</div>
+      <p class="accept">✔ 验收：日志里 5 波的数量和血量与配置表一致；你完整打完一局，第 5 波 BOSS 明显不一样。</p>
+      <p class="why">制作人批注：「数值进表」是团队协作的生命线——以后调平衡的是策划改表，不是求 AI 翻代码。SlimeSlots 案例的规则进 JSON 是同一个动作。</p>
+    </div>
+
+    <div class="td-round">
+      <div class="rh"><span class="rb">R3</span><h4>塔流派：给玩家一个真选择</h4><span class="rt">第 2 天上午 · 对标 V0.3</span></div>
+      <p class="goal-line">目标：三种塔形成打法差异——箭塔快单伤、炮塔范围、冰塔减速，各有三级升级线。</p>
+      <figure class="diagram"><svg viewBox="0 0 640 210" role="img" aria-label="三种塔流派对照与三级升级线">
+        <g>
+          <rect x="16" y="16" width="192" height="178" rx="10" fill="rgba(77,232,255,.05)" stroke="#4de8ff"/>
+          <polygon points="70,42 112,58 70,74 80,58" fill="#4de8ff"/>
+          <text x="112" y="105" text-anchor="middle" font-size="15" fill="#f9ebcd">箭塔 · 50 金</text>
+          <text x="112" y="126" text-anchor="middle" font-size="12" fill="#b5c8bd">1 箭/秒 · 单伤 20</text>
+          <text x="112" y="146" text-anchor="middle" font-size="11" fill="#8aa096">定位：稳定输出主力</text>
+          <g font-size="11" fill="#4de8ff"><rect x="36" y="160" width="40" height="20" rx="4" fill="none" stroke="#4de8ff"/><text x="56" y="174" text-anchor="middle">Lv1</text><text x="86" y="174">→</text><rect x="96" y="160" width="40" height="20" rx="4" fill="none" stroke="#4de8ff"/><text x="116" y="174" text-anchor="middle">Lv2</text><text x="146" y="174">→</text><rect x="156" y="160" width="40" height="20" rx="4" fill="rgba(77,232,255,.2)" stroke="#4de8ff"/><text x="176" y="174" text-anchor="middle">Lv3</text></g>
+        </g>
+        <g>
+          <rect x="224" y="16" width="192" height="178" rx="10" fill="rgba(255,209,124,.05)" stroke="#ffd17c"/>
+          <circle cx="320" cy="58" r="20" fill="none" stroke="#ffd17c" stroke-width="3"/><circle cx="320" cy="58" r="9" fill="#ffd17c"/><circle cx="320" cy="58" r="30" fill="none" stroke="#ffd17c" stroke-dasharray="3 5" opacity=".6"/>
+          <text x="320" y="105" text-anchor="middle" font-size="15" fill="#f9ebcd">炮塔 · 80 金</text>
+          <text x="320" y="126" text-anchor="middle" font-size="12" fill="#b5c8bd">1.5 秒/发 · 范围 15</text>
+          <text x="320" y="146" text-anchor="middle" font-size="11" fill="#8aa096">定位：克成群小怪</text>
+          <g font-size="11" fill="#ffd17c"><rect x="244" y="160" width="40" height="20" rx="4" fill="none" stroke="#ffd17c"/><text x="264" y="174" text-anchor="middle">Lv1</text><text x="294" y="174">→</text><rect x="304" y="160" width="40" height="20" rx="4" fill="none" stroke="#ffd17c"/><text x="324" y="174" text-anchor="middle">Lv2</text><text x="354" y="174">→</text><rect x="364" y="160" width="40" height="20" rx="4" fill="rgba(255,209,124,.2)" stroke="#ffd17c"/><text x="384" y="174" text-anchor="middle">Lv3</text></g>
+        </g>
+        <g>
+          <rect x="432" y="16" width="192" height="178" rx="10" fill="rgba(160,107,255,.06)" stroke="#a06bff"/>
+          <g stroke="#a06bff" stroke-width="3" stroke-linecap="round"><line x1="528" y1="42" x2="528" y2="74"/><line x1="514" y1="50" x2="542" y2="66"/><line x1="542" y1="50" x2="514" y2="66"/></g>
+          <text x="528" y="105" text-anchor="middle" font-size="15" fill="#f9ebcd">冰塔 · 60 金</text>
+          <text x="528" y="126" text-anchor="middle" font-size="12" fill="#b5c8bd">无伤害 · 减速 40%/1.5s</text>
+          <text x="528" y="146" text-anchor="middle" font-size="11" fill="#8aa096">定位：给炮塔争取时间</text>
+          <g font-size="11" fill="#a06bff"><rect x="452" y="160" width="40" height="20" rx="4" fill="none" stroke="#a06bff"/><text x="472" y="174" text-anchor="middle">Lv1</text><text x="502" y="174">→</text><rect x="512" y="160" width="40" height="20" rx="4" fill="none" stroke="#a06bff"/><text x="532" y="174" text-anchor="middle">Lv2</text><text x="562" y="174">→</text><rect x="572" y="160" width="40" height="20" rx="4" fill="rgba(160,107,255,.2)" stroke="#a06bff"/><text x="592" y="174" text-anchor="middle">Lv3</text></g>
+        </g>
+      </svg><figcaption>流派差异才是命题本体：纯箭塔稳、炮+冰打群——两局体验必须明显不同，否则命题不成立</figcaption></figure>
+      <div class="promptbox"><button class="copy">复制</button>新增两种塔和升级系统，数值进同一个配置表：
+- 炮塔：造价 80，每 1.5 秒一发，范围 40 内群体 15 伤害；冰塔：造价 60，不造成伤害，命中减速 40% 持续 1.5 秒；
+- 每种塔可升 3 级，升级费用和数值曲线你在配置表里给出，原则是「升满级 ≈ 三座一级塔的价值，但占一个建造点」；
+- 建造点点击后弹出选择界面。
+禁改：怪物路径、波次表、结算规则。完成后列出三种塔各级 DPS/效果对照表，并说明你用哪一局实测验证。</div>
+      <p class="accept">✔ 验收：分别用「纯箭塔」「炮+冰」各打一局，两局体验明显不同；配置表数值与实测一致。</p>
+      <p class="why">制作人批注：这一步验证的是玩法命题本身——「流派组合决定打法」。如果两种打法打起来没区别，命题就不成立，后面的都别加。</p>
+    </div>
+
+    <div class="td-round">
+      <div class="rh"><span class="rb">R4</span><h4>英雄入场：RPG 味道的来源</h4><span class="rt">第 2 天下午 · 对标 V0.4</span></div>
+      <p class="goal-line">目标：一个可操作英雄 + 一个主动技能。英雄是「魔兽风」和纯塔防的分水岭。</p>
+      <figure class="diagram"><svg viewBox="0 0 640 210" role="img" aria-label="英雄主动技能范围与死亡复活规则示意">
+        <rect x="10" y="10" width="620" height="190" rx="10" fill="#0e1a20" stroke="#3a5451"/>
+        <circle cx="200" cy="105" r="62" fill="rgba(255,93,162,.08)" stroke="#ff5da2" stroke-width="2" stroke-dasharray="6 5" class="pulse"/>
+        <text x="200" y="30" text-anchor="middle" font-size="11" fill="#ff9ec4">Q 技能范围 120 · 150 伤害 · 冷却 8s</text>
+        <circle cx="200" cy="105" r="14" fill="#c5e1bd" stroke="#5f8a6a" stroke-width="2"/>
+        <circle cx="195" cy="101" r="2" fill="#243b40"/><circle cx="205" cy="101" r="2" fill="#243b40"/>
+        <text x="200" y="140" text-anchor="middle" font-size="12" fill="#c5e1bd">英雄 · 600 血</text>
+        <circle cx="163" cy="82" r="6" fill="#ff5da2"/><circle cx="238" cy="90" r="6" fill="#ff5da2"/><circle cx="218" cy="140" r="6" fill="#ff5da2"/>
+        <g font-size="12">
+          <rect x="350" y="40" width="250" height="40" rx="8" fill="#1b3038" stroke="#4de8ff"/><text x="364" y="65" fill="#4de8ff">① 点击选中 → 点地面移动（魔兽式）</text>
+          <rect x="350" y="94" width="250" height="40" rx="8" fill="#1b3038" stroke="#ffd17c"/><text x="364" y="119" fill="#ffd17c">② 死亡不判负 → 10 秒基地复活</text>
+          <rect x="350" y="148" width="250" height="40" rx="8" fill="#1b3038" stroke="#a06bff"/><text x="364" y="173" fill="#a06bff">③ 界面冷却转圈，数值进配置表</text>
+        </g>
+      </svg><figcaption>英雄三要素：魔兽式点地移动、Q 范围技能带冷却、「死亡不判负」是写进指令的设计决策</figcaption></figure>
+      <div class="promptbox"><button class="copy">复制</button>新增一个英雄单位：
+- 点击选中、点地面移动（参考魔兽操作）；普攻近战 30 伤害/秒；
+- 主动技能 Q：对周围 120 范围造成 150 伤害，冷却 8 秒，界面有冷却转圈；
+- 英雄血量 600，死亡不判负，10 秒后在基地复活；
+- 英雄和塔的数值同样进配置表。
+禁改：三种塔、波次表、基地生命。完成后告诉我：英雄操作、技能释放、死亡复活各怎么试玩验证。</div>
+      <p class="accept">✔ 验收：试玩三件事——Q 技能清一波聚团怪、英雄送死后 10 秒复活、英雄不在场时塔防仍能运转。</p>
+      <p class="why">制作人批注：英雄「死亡不判负」是设计决策不是技术限制——它让玩家敢操作。这类决策必须你写进指令，AI 不会替你想到。</p>
+    </div>
+
+    <div class="td-round">
+      <div class="rh"><span class="rb">R5</span><h4>经济闭环：让每一金币都有出处</h4><span class="rt">第 3 天上午</span></div>
+      <p class="goal-line">目标：击杀得金、波次结算奖励、界面随时可见——经济是塔防的隐形主角。</p>
+      <figure class="diagram"><svg viewBox="0 0 640 190" role="img" aria-label="经济闭环：三种金币来源与两种去向">
+        <g font-size="12.5">
+          <rect x="16" y="26" width="140" height="34" rx="8" fill="#1b3038" stroke="#4de8ff"/><text x="86" y="48" text-anchor="middle" fill="#b5c8bd">击杀小怪 <tspan fill="#ffd17c">+8</tspan></text>
+          <rect x="16" y="76" width="140" height="34" rx="8" fill="#1b3038" stroke="#4de8ff"/><text x="86" y="98" text-anchor="middle" fill="#b5c8bd">清完一波 <tspan fill="#ffd17c">+30</tspan></text>
+          <rect x="16" y="126" width="140" height="34" rx="8" fill="#1b3038" stroke="#ff5da2"/><text x="86" y="148" text-anchor="middle" fill="#b5c8bd">击杀 BOSS <tspan fill="#ffd17c">+100</tspan></text>
+          <line x1="160" y1="43" x2="246" y2="82" stroke="#4de8ff" stroke-width="1.6"/><line x1="160" y1="93" x2="246" y2="93" stroke="#4de8ff" stroke-width="1.6"/><line x1="160" y1="143" x2="246" y2="104" stroke="#4de8ff" stroke-width="1.6"/>
+          <circle cx="290" cy="93" r="40" fill="rgba(255,209,124,.12)" stroke="#ffd17c" stroke-width="2.4"/>
+          <text x="290" y="89" text-anchor="middle" font-size="20" fill="#ffd17c">◎</text>
+          <text x="290" y="110" text-anchor="middle" font-size="11" fill="#f9ebcd">金币袋</text>
+          <line x1="334" y1="80" x2="420" y2="55" stroke="#ffd17c" stroke-width="1.6"/><line x1="334" y1="106" x2="420" y2="131" stroke="#ffd17c" stroke-width="1.6"/>
+          <rect x="424" y="34" width="150" height="40" rx="8" fill="#1b3038" stroke="#ffd17c"/><text x="499" y="58" text-anchor="middle" fill="#b5c8bd">建新塔 <tspan fill="#ff9ec4">−50 / 60 / 80</tspan></text>
+          <rect x="424" y="112" width="150" height="40" rx="8" fill="#1b3038" stroke="#ffd17c"/><text x="499" y="136" text-anchor="middle" fill="#b5c8bd">升级 <tspan fill="#ff9ec4">−配置表曲线</tspan></text>
+        </g>
+        <rect x="240" y="158" width="330" height="24" rx="6" fill="#0b1418" stroke="#3a5451"/>
+        <text x="255" y="175" font-size="11.5" fill="#8aa096">界面常显：◎ 236　本波 +52　（结算页显示全局总收入）</text>
+      </svg><figcaption>每一金币都有出处和去向——验收靠流水日志抽查，不是看界面猜</figcaption></figure>
+      <div class="promptbox"><button class="copy">复制</button>只改经济系统：
+- 普通怪击杀 +8 金，BOSS +100 金；每波清完额外 +30 金；
+- 界面常显当前金币、本波已得金币；
+- 数值进配置表，并在结算画面显示本局总收入。
+禁改：塔与英雄的战斗数值。完成后给我一局的经济流水日志（时间、来源、金额）。</div>
+      <p class="accept">✔ 验收：对照日志抽查 3 笔金币来源；打一局验证「攒钱升满一座塔」和「铺开两座新塔」两种花法都成立。</p>
+      <p class="why">制作人批注：经济流水日志是验收经济系统的唯一可靠方式——看界面猜不出哪里漏算了。</p>
+    </div>
+
+    <div class="td-round">
+      <div class="rh"><span class="rb">R6</span><h4>手感与表现：只动表现层</h4><span class="rt">第 3 天下午</span></div>
+      <p class="goal-line">目标：弹道、血条、伤害飘字、命中反馈——让同样的数值「玩起来爽」。</p>
+      <figure class="diagram"><svg viewBox="0 0 640 200" role="img" aria-label="表现层与业务层分离：只读单向箭头">
+        <rect x="60" y="22" width="380" height="62" rx="10" fill="rgba(77,232,255,.08)" stroke="#4de8ff" stroke-width="2"/>
+        <text x="80" y="46" font-size="14" fill="#4de8ff">表现层（本轮唯一可改）</text>
+        <text x="80" y="70" font-size="12" fill="#b5c8bd">弹道 · 血条 · 伤害飘字 · 技能指示圈 · 占位音效</text>
+        <rect x="60" y="122" width="380" height="62" rx="10" fill="rgba(255,209,124,.07)" stroke="#ffd17c" stroke-width="2"/>
+        <text x="80" y="146" font-size="14" fill="#ffd17c">业务层（一行不许动）</text>
+        <text x="80" y="170" font-size="12" fill="#b5c8bd">伤害数值 · 波次规则 · 经济结算 · 胜负判定</text>
+        <line x1="250" y1="110" x2="250" y2="88" stroke="#c5e1bd" stroke-width="2.4" marker-end="url(#arrU)"/>
+        <defs><marker id="arrU" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,4 L4,0 L8,4" fill="none" stroke="#c5e1bd" stroke-width="1.4"/></marker></defs>
+        <text x="264" y="103" font-size="12" fill="#c5e1bd">只读 ↑（拿结果做表现）</text>
+        <line x1="180" y1="88" x2="180" y2="110" stroke="#ff5da2" stroke-width="2" stroke-dasharray="4 3"/>
+        <text x="146" y="103" font-size="14" fill="#ff5da2">✕</text>
+        <g font-size="12" fill="#8aa096"><text x="470" y="48">验收金标准：</text><text x="470" y="74" fill="#b5c8bd">改动前后第 3 波</text><text x="470" y="98" fill="#b5c8bd">怪物死亡时间戳</text><text x="470" y="122" fill="#b5c8bd">完全一致</text></g>
+      </svg><figcaption>方块英雄果酱印案例的同一条纪律：表现层只读结果，反向一动，平衡就出事</figcaption></figure>
+      <div class="promptbox"><button class="copy">复制</button>只改表现层，一行战斗数值都不许动：
+- 箭塔/炮塔攻击加可见弹道（飞行 0.15 秒）；怪物头顶加血条；
+- 伤害以飘字显示（物理白色、技能金色），0.6 秒上浮消失；
+- 英雄 Q 技能加范围指示圈和释放闪光；
+- 音效用 WebAudio 合成的占位音，不引外部资源。
+验收标准：改动前后各打一局第 3 波，怪物死亡时间点和总时长应完全一致——用日志证明表现层没有碰数值。</div>
+      <p class="accept">✔ 验收：两局日志的死亡时间戳一致；新表现全部在画面上亲眼看到。</p>
+      <p class="why">制作人批注：方块英雄果酱印案例的同一条纪律——表现层只读结果。这条破了，以后每次美化都可能改坏平衡。</p>
+    </div>
+
+    <div class="td-round boss">
+      <div class="rh"><span class="rb">R7</span><h4>验收与调平衡：制作人的收官动作</h4><span class="rt">第 3 天晚上 · 对标 V0.5</span></div>
+      <p class="goal-line">目标：三局完整试玩记录 + 一次只改一个数的平衡调整 + 制作记录归档。</p>
+      <figure class="diagram"><svg viewBox="0 0 640 200" role="img" aria-label="三局试玩记录表与一次只改一个数">
+        <g font-size="12">
+          <rect x="14" y="16" width="330" height="168" rx="10" fill="#0e1a20" stroke="#3a5451"/>
+          <text x="30" y="40" fill="#4de8ff" class="px" font-size="11">PLAYTEST × 3</text>
+          <g fill="#b5c8bd">
+            <text x="30" y="66">局1 纯箭塔</text><text x="170" y="66">漏怪 0 · 剩 3 命 · 余 40 金</text>
+            <text x="30" y="92">局2 炮+冰</text><text x="170" y="92">漏怪 2 · 剩 1 命 · 余 12 金</text>
+            <text x="30" y="118">局3 混合+英雄</text><text x="170" y="118">漏怪 0 · 剩 2 命 · Q×7</text>
+          </g>
+          <line x1="28" y1="136" x2="330" y2="136" stroke="#3a5451"/>
+          <text x="30" y="160" fill="#ff9ec4">▲ 三局一致：第 3 波压力最大 → 断层嫌疑</text>
+        </g>
+        <g font-size="12">
+          <rect x="370" y="16" width="256" height="168" rx="10" fill="rgba(255,93,162,.06)" stroke="#ff5da2" stroke-width="2"/>
+          <text x="386" y="40" fill="#ff9ec4" class="px" font-size="11">最小调整 · 只改一个数</text>
+          <rect x="386" y="54" width="224" height="30" rx="6" fill="#152030" stroke="#3a5451"/><text x="398" y="74" fill="#5a6a66">第 2 波系数 1.3 · 锁定</text>
+          <rect x="386" y="92" width="224" height="30" rx="6" fill="rgba(255,209,124,.14)" stroke="#ffd17c"/><text x="398" y="112" fill="#ffd17c">第 3 波系数 1.6 → 1.35 ✎</text>
+          <rect x="386" y="130" width="224" height="30" rx="6" fill="#152030" stroke="#3a5451"/><text x="398" y="150" fill="#5a6a66">第 4 波系数 2.0 · 锁定</text>
+          <text x="386" y="178" fill="#8aa096">其他行全部锁定，改完用日志对照</text>
+        </g>
+      </svg><figcaption>收官两件套：三局记录表找出压力断层，调整时配置表里只有一行被解锁</figcaption></figure>
+      <div class="promptbox"><button class="copy">复制</button>现在做验收，不改任何代码：
+完整试玩 3 局并输出记录表：每局的流派选择、漏怪数、基地剩余命、剩余金币、英雄技能使用次数、第几波压力最大。
+如果数据显示第 3 波明显压力断层，先只提一个最小调整方案（改配置表里的一个数），说明预期影响和验证方法，等我确认再改。</div>
+      <p class="accept">✔ 验收：三局记录表真实可核对；调整只动一个数；最后让 AI 写制作记录（入口、规则、改动、已验/未验项、下一步）。</p>
+      <p class="why">制作人批注：「先给数据再提一个最小方案」是防止 AI 一口气把五个数值全改了——那样你永远不知道是哪一改起了作用。</p>
+    </div>
+  </div>
+
+  <div class="hpbar"><i style="width:100%"></i></div>
+  <p style="color:var(--dim);font-size:14px;margin-top:8px">完整进度：R0 立项 → R1 最小循环 → R2 波次 → R3 流派 → R4 英雄 → R5 经济 → R6 手感 → R7 验收。一天半，八轮，每轮都有证据。</p>
+  <div class="note green"><b>对照真实证据：</b>这套「一天两版、每版留证」的节奏不是编的——下方案例库里 Dice Defense 的 V0.1→V0.5 五段录屏就是真实发生的三天。拆解里的每条话术都可以直接复制去你自己的 Codex 项目里用。</div>
+  <div class="note" style="border-color:var(--violet)"><b>随堂练习：</b>打开 <a href="塔防实操练习单.html">塔防实操练习单</a>——每轮先自己写 5 分钟指令，再展开参考话术对答案，写完可导出练习记录随作业一起交。支持 Ctrl+P 打印成纸质练习单。</div>
+</div></section>
+
+<section id="flow"><div class="wrap">
+  <span class="pix">PRODUCER WORKFLOW</span>
+  <h2>制作人视角：Codex / Claude Code / Grok 怎么分工</h2>
+  <p style="color:var(--muted);max-width:860px">不要问「哪个模型最强」，要问「这一棒谁跑」。一个真实项目里，三件工具经常同时出现：讨论创意用聊天模型，落地改文件用带工具的 Agent，验收判断永远是人。</p>
+
+  <table class="flow">
+    <tr><th style="width:15%">环节</th><th style="width:28%">谁来跑</th><th>制作人要看住什么</th></tr>
+    <tr><td><b>创意探索</b></td><td>Grok / 任意聊天模型<br><span style="font-size:13px">（没有文件权限，只出想法）</span></td><td>让它多问问题、给 3 个只改一条规则的小方案。<b>聊天里的建议不等于已保存的游戏</b>，选定的规则要带回制作任务。</td></tr>
+    <tr><td><b>落地制作</b></td><td>Codex 桌面端（本课主线）<br>Claude Code（已有环境可替代）</td><td>先绑定正确文件夹再授权改文件；任务里写清引擎版本、运行命令、禁改范围。两条内部主案例（SlimeSlots、方块英雄）都是 Desktop + 明确工作目录。</td></tr>
+    <tr><td><b>验收交付</b></td><td><b>只能是人</b></td><td>要求真实构建、实跑、截图、日志和 diff。「生成完成」不等于「游戏完成」；自动测试通过也不能代替你的眼睛。</td></tr>
+  </table>
+
+  <h3 style="margin-top:36px">给 AI 下游戏任务：五段式</h3>
+  <svg class="pentagram" viewBox="0 0 480 260" role="img" aria-label="五段式咏唱阵：目标、引擎、约束、验收、禁改">
+    <g fill="none" stroke-width="1.6">
+      <polygon points="240,28 432,105 362,232 118,232 48,105" stroke="rgba(201,167,255,.6)"/>
+      <polygon points="240,28 362,232 48,105 432,105 118,232 240,28" stroke="rgba(126,207,255,.35)"/>
+      <circle cx="240" cy="140" r="46" stroke="#ffd17c" stroke-width="2"/>
+    </g>
+    <text x="240" y="136" text-anchor="middle" font-size="13" fill="#ffd17c">可验收</text>
+    <text x="240" y="154" text-anchor="middle" font-size="13" fill="#ffd17c">闭 环</text>
+    <g font-size="13" text-anchor="middle">
+      <g><circle cx="240" cy="28" r="24" fill="#1b3038" stroke="#ffd17c" stroke-width="2"/><text x="240" y="33" fill="#ffd17c">目标</text></g>
+      <g><circle cx="432" cy="105" r="24" fill="#1b3038" stroke="#4de8ff" stroke-width="2"/><text x="432" y="110" fill="#4de8ff">引擎</text></g>
+      <g><circle cx="362" cy="232" r="24" fill="#1b3038" stroke="#a06bff" stroke-width="2"/><text x="362" y="237" fill="#c9a7ff">约束</text></g>
+      <g><circle cx="118" cy="232" r="24" fill="#1b3038" stroke="#7dff9b" stroke-width="2"/><text x="118" y="237" fill="#7dff9b">验收</text></g>
+      <g><circle cx="48" cy="105" r="24" fill="#1b3038" stroke="#ff5da2" stroke-width="2"/><text x="48" y="110" fill="#ff9ec4">禁改</text></g>
+    </g>
+  </svg>
+  <div class="grid g3" style="grid-template-columns:repeat(5,1fr)" id="fiveSeg">
+    <div class="card" style="padding:14px 16px"><span class="tag cyan">目标</span><p>玩家看到什么变化</p></div>
+    <div class="card" style="padding:14px 16px"><span class="tag cyan">引擎</span><p>版本、入口、运行命令</p></div>
+    <div class="card" style="padding:14px 16px"><span class="tag cyan">约束</span><p>分辨率、性能、复用规则</p></div>
+    <div class="card" style="padding:14px 16px"><span class="tag cyan">验收</span><p>步骤、数值、截图时点</p></div>
+    <div class="card" style="padding:14px 16px"><span class="tag cyan">禁改</span><p>文件、模块、存档、资源</p></div>
+  </div>
+
+  <div class="vs">
+    <div class="bad"><h4>✕ 差提示（来自真实反例）</h4>
+      <p>「把这个效果做得更好看。」</p>
+      <p>不知道改哪一层 · 不知道什么时候算完成 · 容易顺手改坏业务逻辑。</p></div>
+    <div class="good"><h4>✓ 好提示（方块英雄真实需求改写）</h4>
+      <p>「短促奶油爆破后，每个消除格出现 1 枚淡果酱印；约 0.55 秒消失。只改表现层。1080×1920 和长屏各截峰值、中段、结束三张图。」</p>
+      <p>可定位、可计数、可定时 · 有边界，也有截图标准。</p></div>
+  </div>
+
+  <h3 style="margin-top:36px">六个最常见的坑，每个配一个纠偏动作</h3>
+  <div class="fails">
+    <div class="fail"><b>01 一次要做整款游戏</b>先限定 1 个玩家动作 + 1 个结果 + 1 条验收链<span>→ 纠偏：拆到能在 1–3 个可观察结果上验收，不能拆就继续拆</span></div>
+    <div class="fail"><b>02 只写「更好看」</b>AI 不知道改哪层、何时算完<span>→ 纠偏：把层级、时长、透明度、分辨率和截图时点写清</span></div>
+    <div class="fail"><b>03 生成了但没运行</b>「页面打开了」不等于功能完成<span>→ 纠偏：要求真实引擎构建 + 实际入口截图；跑不了就写 Not Run</span></div>
+    <div class="fail"><b>04 只看开发自测</b>自己生成自己说通过，没有说服力<span>→ 纠偏：关键链路用独立 QA 或只读验证复跑一遍</span></div>
+    <div class="fail"><b>05 资源与规则混在一起</b>改表现时顺手动了胜负逻辑<span>→ 纠偏：表现层只读结果，业务状态由领域逻辑拥有（方块英雄果酱印的关键设计）</span></div>
+    <div class="fail"><b>06 只看单一尺寸</b>电脑上好好的，手机上穿帮<span>→ 纠偏：主基准 + 短屏/长屏 + Safe Area 各截一套</span></div>
+  </div>
+
+  <div class="note"><b>验收原则（背下来）：</b>每一条策划规则，都要能映射到「画面、日志、快照或配置」中的一个证据。写不出证据的规则，就是还没讲清楚的规则。</div>
+</div></section>
+
+<section id="prompts"><div class="wrap">
+  <span class="pix">PROMPT LIBRARY · 直接抄</span>
+  <h2>场景话术库：六种常见情况，照着写就行</h2>
+  <p style="color:var(--muted);max-width:860px">新人卡住往往不是不会想，而是不知道怎么开口。下面六类覆盖做游戏 Demo 90% 的场景，全部可直接复制改参数用。共同骨架都是五段式：<b style="color:var(--ink)">目标 → 引擎 → 约束 → 验收 → 禁改</b>。</p>
+
+  <div class="grid g2" style="margin-top:24px">
+    <div class="card"><span class="tag cyan">场景 1 · 加一个新系统</span>
+      <div class="promptbox"><button class="copy">复制</button>为现有游戏新增【商店系统】：每波结束后可花金币买【3 种强化之一】。
+约束：数值写进配置表；复用现有结算界面风格；不影响战斗中的操作。
+验收：打完一波能看到商店，三种强化各买一次都生效，没钱时按钮置灰。
+禁改：战斗数值、关卡流程。先列出要改的文件和影响，我确认后再动手。</div>
+      <p style="font-size:14px">要点：新系统先说「挂在哪个现有节点上」（每波结束），AI 才知道往哪接。</p></div>
+    <div class="card"><span class="tag cyan">场景 2 · 调平衡数值</span>
+      <div class="promptbox"><button class="copy">复制</button>第 3 波难度过高：把配置表里第 3 波血量系数从 1.6 降到 1.35，只改这一个数。
+改完跑一遍第 3 波，对比改动前后的基地剩余命，用日志证明只有这个数变了。</div>
+      <p style="font-size:14px">要点：一次只改一个数，并要求前后对比——否则你无法归因。</p></div>
+    <div class="card"><span class="tag cyan">场景 3 · 修 Bug（四要素）</span>
+      <div class="promptbox"><button class="copy">复制</button>操作：英雄在冰塔减速区边缘反复横跳移动。
+实际：减速效果偶尔不生效（见录屏/截图）。
+预期：进入减速区 0.2 秒内必生效。
+范围：只修判定逻辑，不改减速数值和表现。修完给我复测步骤。</div>
+      <p style="font-size:14px">要点：先截图再开口。「操作→实际→预期→范围」缺一个，AI 就只能猜。</p></div>
+    <div class="card"><span class="tag cyan">场景 4 · 接美术资源</span>
+      <div class="promptbox"><button class="copy">复制</button>我放了一张 assets/hero.png（32×32，透明背景，人物居中）。
+先检查：尺寸、透明通道、主体是否居中，报给我；确认没问题再把英雄占位方块换成它，锚点取图片底部中心。
+禁改：碰撞体积、移动逻辑。验收：英雄贴地、转向正常、不遮挡血条。</div>
+      <p style="font-size:14px">要点：方块英雄案例的原话——先查透明与居中，原图哈希一致，再隔离接入。</p></div>
+    <div class="card"><span class="tag cyan">场景 5 · 加手感 / 音效</span>
+      <div class="promptbox"><button class="copy">复制</button>只加表现：攻击命中时画面顿 2 帧 + 目标闪白；击杀播放 WebAudio 合成的短促上扬音（不引外部文件）。
+一行战斗数值都不动。验收：改动前后同一波次的怪物死亡时间戳完全一致。</div>
+      <p style="font-size:14px">要点：手感改动的验收标准是「数值日志纹丝不动」——表现层只读结果。</p></div>
+    <div class="card"><span class="tag cyan">场景 6 · 每日交付三件套</span>
+      <div class="promptbox"><button class="copy">复制</button>今天到此为止。请输出：① 当前可玩版本的打开方法；② 今天每轮改动清单和对应的试玩结论；③ 已知问题和 Not Run 项；④ 明天只做的一件事。写进「制作记录.txt」，不记录账号信息。</div>
+      <p style="font-size:14px">要点：目标不是「多写代码」，是每天有一个别人能复核的可玩状态：可玩 build + 30 秒录屏 + 变更说明。</p></div>
+  </div>
+
+  <h3 style="margin-top:36px">新人第一周节奏（D1–D5）</h3>
+  <div class="grid g3" style="grid-template-columns:repeat(5,1fr)" id="weekPlan">
+    <div class="card" style="padding:14px 16px"><span class="tag gold">D1</span><p style="font-size:14px">打开项目，画出 1 页仓库地图：入口、模块、运行命令</p></div>
+    <div class="card" style="padding:14px 16px"><span class="tag gold">D2</span><p style="font-size:14px">让 AI 只读定位一个功能链，不改任何文件</p></div>
+    <div class="card" style="padding:14px 16px"><span class="tag gold">D3</span><p style="font-size:14px">完成一个 1–3 个文件的小改，亲自试玩验收</p></div>
+    <div class="card" style="padding:14px 16px"><span class="tag gold">D4</span><p style="font-size:14px">跑测试、构建和截图矩阵，留证据</p></div>
+    <div class="card" style="padding:14px 16px"><span class="tag gold">D5</span><p style="font-size:14px">交付：可玩 build + 30 秒录屏 + 变更说明</p></div>
+  </div>
+  <div class="note"><b>FAQ（新人最常问的三个）：</b>不懂代码能用吗？——能，先用策划语言写玩家动作、规则和验收。AI 说完成了能交付吗？——不能，至少要构建、实跑、截图或录屏加已知问题。大改怎么做？——拆里程碑，先审批场景和存档，单独分支隔离。</div>
+</div></section>
+
+<section id="cases"><div class="wrap">
+  <span class="pix">INTERNAL PROJECT LIBRARY</span>
+  <h2>内部真实项目案例库</h2>
+  <p style="color:var(--muted);max-width:860px">全部是本机真实做过的项目，视频和 Demo 都在课件包里，<b style="color:var(--ink)">可以直接播放、直接试玩</b>。注意每个项目「验证了什么」——这才是看案例的正确姿势，不是看画面炫不炫。</p>
+
+  <h3 style="margin-top:30px">主打案例 · Dice Defense：三天五版的真实迭代节奏</h3>
+  <p style="color:var(--muted);max-width:860px;font-size:15px">从第一天中午的第一版到第三天的第五版，每一版都留下录屏。看重点：AI 做游戏不是一次生成，而是「能玩 → 发现问题 → 再改」的循环。完整开发对话记录也可回看。</p>
+  <div class="grid g3" style="margin-top:18px">
+    <div class="case"><video controls preload="none" poster="../posters/v01.jpg" src="../dice-defense-video/V0.1-第一天中午-faststart.mp4"></video><div class="body"><h4>V0.1 · 第一天中午</h4><p>第一版能跑就是胜利：先有最小循环，再谈好不好玩。</p></div></div>
+    <div class="case"><video controls preload="none" poster="../posters/v02.jpg" src="../dice-defense-video/V0.2-第一天下午-faststart.mp4"></video><div class="body"><h4>V0.2 · 第一天下午</h4><p>半天一个版本：对比 V0.1，找出这一版改了什么、为什么改。</p></div></div>
+    <div class="case"><video controls preload="none" poster="../posters/v03.jpg" src="../dice-defense-video/V0.3-第二天中午-faststart.mp4"></video><div class="body"><h4>V0.3 · 第二天中午</h4><p>中期迭代：新系统进场时，旧规则有没有被顺手改坏？</p></div></div>
+    <div class="case"><video controls preload="none" poster="../posters/v04.jpg" src="../dice-defense-video/V0.4-第二天晚上-faststart.mp4"></video><div class="body"><h4>V0.4 · 第二天晚上</h4><p>表现层加码：画面变好不等于玩法变好，验收要分开看。</p></div></div>
+    <div class="case"><video controls preload="none" poster="../posters/v05.jpg" src="../dice-defense-video/v0.5-第三天-faststart.mp4"></video><div class="body"><h4>V0.5 · 第三天</h4><p>收官版：三天做到这个完成度，传统排期要多久？</p></div></div>
+    <div class="case"><div class="thumb" style="background-image:url('../posters/dice.png')"></div><div class="body"><h4>亲自玩 & 看开发对话</h4><p>别只看录屏——打开可玩版本亲手打一局，再翻开发对话记录，看每一版背后的指令长什么样。</p><div class="links"><a href="../dice-defense-play.html" target="_blank">▶ 试玩 Dice Defense</a><a href="../dice-defense-play-chat_viewer.html" target="_blank">开发对话记录</a></div><p class="verdict">验证了：AI 协作下「一天两版」的迭代速度真实可行。未验证：长期玩法深度与平衡。</p></div></div>
+  </div>
+
+  <h3 style="margin-top:44px">更多内部项目：按「回答的问题」来挑着看</h3>
+  <div class="grid g3" style="margin-top:18px">
+    <div class="case"><div class="thumb" style="background-image:url('assets/media/slime-scene.png')"></div><div class="body"><span class="tag cyan">COCOS CREATOR · 真实项目</span><h4>SlimeSlots_2.0 · 史莱姆王升级</h4><p>把「经验升级 + 三选一 + 法球成长 + 经济规则」接进现有 Cocos 2.4 项目：规则进 JSON 配置不写死，复用原 UI，Web 构建后逐条验收——100 XP 升 Lv2 自动弹三选一、多重法球 2 枚单枚 80% 伤害、BOSS 结算 200 XP / 100 金币、旧事件不回归。</p><p class="verdict">验证了：配置化 + 逐条证据验收的工作流。项目在本机引擎环境，网页不直接试玩；方法论见上方「五段式」。</p></div></div>
+    <div class="case"><div class="thumb" style="background-image:url('assets/media/slime-layers.png')"></div><div class="body"><span class="tag cyan">UNITY · 真实项目</span><h4>方块英雄 · 逐格果酱印</h4><p>美术需求也要写成可测规格：1 张透明 PNG 先查透明与哈希；任务拆成 4 个问题（资源能不能用？放哪层？显示多久透明多少？如何证明不影响结算？）；用峰值 / 中段 / 结束三个时点 + 双分辨率截图矩阵验收 0.555 秒动效，专项 5/5、业务 135/135。</p><p class="verdict">验证了：表现层只读结果、不动业务状态的边界设计。素材在项目库内，不打包外发。</p></div></div>
+    <div class="case"><div class="thumb" style="background-image:url('../posters/huanta.png')"><a class="play" href="../huantajiyuan.html" target="_blank">▶</a></div><div class="body"><span class="tag gold">四周迭代 · 可直接玩</span><h4>幻塔纪元</h4><p>四周持续迭代的完整循环：局内战斗、背包管理与局外养成能否互相支持。这是本包内最接近「完整游戏」的样本。</p><div class="links"><a href="../huantajiyuan.html" target="_blank">▶ 打开试玩</a></div><p class="verdict">验证了：AI 协作能支撑多周目的系统堆叠。未验证：商业化与长线运营。</p></div></div>
+    <div class="case"><div class="thumb" style="background-image:url('../posters/2d.png')"><a class="play" href="../2D像素作品-play.html" target="_blank">▶</a></div><div class="body"><span class="tag gold">网页单文件 · 可直接玩</span><h4>2D 像素作品</h4><p>网页单文件也能成为快速玩法实验场：发给任何人，双击就能玩，回收反馈零成本。新人的第一个 Demo 推荐就是这个形态。</p><div class="links"><a href="../2D像素作品-play.html" target="_blank">▶ 打开试玩</a></div><p class="verdict">验证了：单文件网页 Demo 的分享与反馈效率。</p></div></div>
+    <div class="case"><div class="thumb" style="background-image:url('../posters/3d.png')"><a class="play" href="../3D作品-play.html" target="_blank">▶</a></div><div class="body"><span class="tag gold">网页 3D · 可直接玩</span><h4>3D 竞速作品</h4><p>同一个「能玩就行」的思路放到 3D：先验证操作手感和镜头，再谈画面。打开后按画面提示操作。</p><div class="links"><a href="../3D作品-play.html" target="_blank">▶ 打开试玩</a></div><p class="verdict">验证了：3D 原型同样可以网页化快速分发。</p></div></div>
+    <div class="case"><video controls preload="none" poster="../posters/intern1.jpg" src="../实习生作品展示1-faststart.mp4"></video><div class="body"><span class="tag cyan">校招生样本 · 录屏</span><h4>实习生作品 ①</h4><p>看一个和你起点相同的新人，怎样借 AI 补足实现能力，把想法变成可展示作品。这就是你三个月内的目标。</p><p class="verdict">验证了：零工程背景也能做出可展示成果。</p></div></div>
+    <div class="case"><video controls preload="none" poster="../posters/intern2.jpg" src="../实习生作品展示2-faststart.mp4"></video><div class="body"><span class="tag cyan">校招生样本 · 录屏</span><h4>实习生作品 ②</h4><p>不同题材、不同工作方式、不同完成度——没有唯一标准答案，重点是都能找到适合自己的最小验证路径。</p><p class="verdict">验证了：路径可以多样，验收标准不变。</p></div></div>
+    <div class="case"><video controls preload="none" src="assets/media/mgf-highlight.mp4"></video><div class="body"><span class="tag cyan">讨论素材 · 录屏</span><h4>《迷宫饭》片段：缩小第一步</h4><p>看从入口到战斗、事件再回战斗的衔接。讨论题：如果要做它的 Demo，第一天只验证哪一个 30 秒问题？</p><p class="verdict">用途：练习「把大游戏缩成最小可验证命题」。</p></div></div>
+    <div class="case"><div class="thumb" style="background-image:url('assets/media/pixel-fighter.png')"></div><div class="body"><span class="tag gold">教学练习包 · 可直接玩</span><h4>矿工四版 + 故障样本</h4><p>同一个游戏的四次规则变化：30 秒版 → 45 秒版 → 加巡逻危险 → 带回才入账，外加一个刻意写错 +20 的故障样本。每版都配了当时的真实指令文本。</p><div class="links"><a href="practice/v1/index.html" target="_blank">v1</a><a href="practice/v2/index.html" target="_blank">v2</a><a href="practice/v3/index.html" target="_blank">v3</a><a href="practice/v4/index.html" target="_blank">v4</a><a href="practice/fault/index.html" target="_blank">故障样本</a></div><p class="verdict">用途：对照上方模拟工作台，在真文件里再练一轮。</p></div></div>
+  </div>
+  <div class="note coral"><b>看案例的纪律：</b>录屏与截图只证明「录到的画面」，不证明完整制作过程或所有功能；教学方法（指令、验收、迭代节奏）才是可以带走的东西。</div>
+</div></section>
+
+<section id="external"><div class="wrap">
+  <span class="pix">EXTERNAL · X / YOUTUBE</span>
+  <h2>别人正在怎样用 AI 做游戏</h2>
+  <p style="color:var(--muted);max-width:860px">以下链接需要联网（X 可能需要登录）。筛选规则：优先官方或原作者原帖；二手汇总明确标注。看每个视频时多问一句制作人问题：<b style="color:var(--ink)">它验证了什么，又回避了什么？</b>核对日期 2026-09-07。</p>
+
+  <h3 style="margin-top:26px">必看四个：从零基础到完整工作流</h3>
+  <div class="ext">
+    <a class="card" href="https://levels.io/fly-pieter-com-vibecoded-flight-simulator" target="_blank" rel="noopener">
+      <div class="nothumb">LEVELS.IO<br>BLOG</div>
+      <div class="ebody"><span class="plat">作者复盘 · LEVELSIO</span><h4>fly.pieter.com：3 小时搓出的飞行游戏，17 天做到 $1M ARR（作者自述）</h4><p>零游戏开发经验的独立开发者，用 Cursor + Claude 写前端、Grok 写服务器，整个游戏就一个 HTML 文件 + 一个 WebSocket 服务。</p><p class="lens">制作人看点：速度是真的，但收入来自广告位创意和 Build in Public 传播——玩法本身极简单。还可直接玩：fly.pieter.com</p></div>
+    </a>
+    <a class="card" href="https://vibej.am/2025/" target="_blank" rel="noopener">
+      <div class="nothumb">VIBEJ.AM<br>2025</div>
+      <div class="ebody"><span class="plat">赛事存档 · 1000+ 可玩游戏</span><h4>2025 Vibe Coding Game Jam 官方存档</h4><p>第一届 AI 游戏 Jam：规则要求 80% 以上代码由 AI 编写、浏览器免登录即玩。评委包括「vibe coding」一词的提出者 Karpathy。<b>存档里上千个游戏现在还能点开就玩</b>——最好的灵感库。</p><p class="lens">制作人看点：挑 3 个获奖作品玩 5 分钟，写下「它如果没有 AI 还能不能成立」。</p></div>
+    </a>
+    <a class="card" href="https://vibej.am/2026/press" target="_blank" rel="noopener">
+      <div class="nothumb">VIBEJ.AM<br>2026</div>
+      <div class="ebody"><span class="plat">赛事 · CURSOR VIBE JAM 2026</span><h4>第二届 Vibe Jam：冠军用 Claude Code 拿下 $25,000</h4><p>2026 年 4 月举办，要求 90% 代码 AI 编写、浏览器即玩。冠军作品由 Claude Code 完成几乎全部工程——人负责设计决策与验收。</p><p class="lens">制作人看点：官方把它定位为「AI 编码能力的年度公开基准」——用来校准你对「AI 现在能做到哪」的预期。</p></div>
+    </a>
+    <a class="card" href="https://creatoreconomy.so/p/build-a-retro-game-with-claude-code-in-20-min" target="_blank" rel="noopener">
+      <div class="nothumb">TUTORIAL<br>20 MIN</div>
+      <div class="ebody"><span class="plat">教程 · CLAUDE CODE</span><h4>20 分钟用 Claude Code 做一个复古太空射击</h4><p>完整五步：建项目 → 找免费像素素材 → 让 AI 先写规格 → 构建 MVP 迭代 → 部署上线。含配套视频，作者带娃一起做，门槛极低。</p><p class="lens">制作人看点：注意他先让 Claude 写 spec 再动手——和本课「先确认规则再改文件」是同一个动作。</p></div>
+    </a>
+  </div>
+
+  <h3 style="margin-top:36px">工具官方与进阶工作流</h3>
+  <div class="ext">
+    <a class="card" href="https://www.youtube.com/watch?v=SGUCcjHTmGY&t=788s" target="_blank" rel="noopener">
+      <div class="thumb" style="background-image:url('https://img.youtube.com/vi/SGUCcjHTmGY/hqdefault.jpg')"></div>
+      <div class="ebody"><span class="plat">YOUTUBE · OPENAI 官方 · 13:08 起</span><h4>OpenAI Codex Live Demo：现场造一个小游戏</h4><p>早期基础案例：自然语言快速生成可交互结果，适合讲「从描述到运行」的范式变化。</p><p class="lens">制作人看点：速度证明了表达门槛下降，但没有证明玩法耐久性。</p></div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=S0Vz2Y8KFOs" target="_blank" rel="noopener">
+      <div class="thumb" style="background-image:url('https://img.youtube.com/vi/S0Vz2Y8KFOs/hqdefault.jpg')"></div>
+      <div class="ebody"><span class="plat">YOUTUBE · CODEX WORKFLOW</span><h4>Codex 实际开发：AGENTS.md、提示词与真实修改</h4><p>从项目规则、仓库上下文到 Agent 真正修改文件，补足官方 Demo 之后的完整工作方式。</p><p class="lens">制作人看点：把长期原则留在项目里，把本轮目标与验收留在任务里。</p></div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=k9cbm5jSOxk" target="_blank" rel="noopener">
+      <div class="thumb" style="background-image:url('https://img.youtube.com/vi/k9cbm5jSOxk/hqdefault.jpg')"></div>
+      <div class="ebody"><span class="plat">YOUTUBE · 创作者 · 72 小时</span><h4>Assets by AI, Gameplay by Claude Code</h4><p>从 3D 资产到 Unreal 中的可玩平台游戏，观察多种 AI 工具之间怎样接力。</p><p class="lens">制作人看点：先锁一条可完成的核心路线，再让不同 AI 分别消费明确资产。</p></div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=gv0WHhKelSE" target="_blank" rel="noopener">
+      <div class="thumb" style="background-image:url('https://img.youtube.com/vi/gv0WHhKelSE/hqdefault.jpg')"></div>
+      <div class="ebody"><span class="plat">YOUTUBE · ANTHROPIC 官方</span><h4>Claude Code best practices</h4><p>不是游戏炫技，而是理解调查、计划、上下文和验证怎样组成可靠的 Agent 工作。</p><p class="lens">制作人看点：把目标、约束、验收写进项目，比「神提示词」更可复制。</p></div>
+    </a>
+  </div>
+
+  <h3 style="margin-top:36px">X 上的快速生成样本与前沿方向（审慎观看）</h3>
+  <div class="ext">
+    <a class="card" href="https://x.com/minchoi/status/2075959167689396374" target="_blank" rel="noopener">
+      <div class="nothumb">𝕏<br>GROK</div>
+      <div class="ebody"><span class="plat">X · 案例串 · 二手汇总</span><h4>Grok 快速生成多类游戏与 3D 场景</h4><p>汇总 FPS、横版、空间战斗与 UE 场景等快速生成案例；是灵感样本，不是独立质量评测。</p><p class="lens">制作人看点：两行 Prompt 能做出「可看」，下一问必须是玩家为什么愿意再玩。</p></div>
+    </a>
+    <a class="card" href="https://x.com/GlavinW/status/2042244747062857827" target="_blank" rel="noopener">
+      <div class="nothumb">𝕏<br>VIBEJAM</div>
+      <div class="ebody"><span class="plat">X · 创作者原帖</span><h4>Claude Code 写 GPU 刚体物理引擎</h4><p>不只是「做个小游戏」，而是让 Agent 进入底层工具与性能实验。</p><p class="lens">制作人看点：新工具能否让过去太贵的破坏、物理或群体模拟成为核心卖点？</p></div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=PDKhUknuQDg" target="_blank" rel="noopener">
+      <div class="thumb" style="background-image:url('https://img.youtube.com/vi/PDKhUknuQDg/hqdefault.jpg')"></div>
+      <div class="ebody"><span class="plat">YOUTUBE · GOOGLE DEEPMIND</span><h4>Genie 3：可实时导航的动态世界</h4><p>文本提示生成可交互环境，展示「游戏世界本身由模型实时模拟」的方向。</p><p class="lens">制作人看点：当世界不再完全预制，关卡设计师要怎样定义约束、节奏与记忆？</p></div>
+    </a>
+    <a class="card" href="https://developers.openai.com/api/docs/guides/latest-model?model=gpt-5.5" target="_blank" rel="noopener">
+      <div class="nothumb">DOCS<br>OPENAI</div>
+      <div class="ebody"><span class="plat">OPENAI DOCS · 官方口径</span><h4>Outcome-first：先写结果、约束与验收</h4><p>官方模型指导：为 Agent 明确预期结果、成功标准、允许的副作用与证据规则。</p><p class="lens">制作人看点：不要替 Agent 写每一步；把你真正要守住的产品边界写清楚。</p></div>
+    </a>
+  </div>
+  <div class="note coral"><b>提醒：</b>播放量、生成时长、「零代码」宣传都不是作品质量证据。外部视频未下载进课件包，字幕、登录和地区可用性以来源页面为准。</div>
+</div></section>
+
+<section id="innovation"><div class="wrap">
+  <span class="pix">BEYOND FASTER · 创新思维</span>
+  <h2>创新思维：不只是更快地做旧游戏</h2>
+  <p style="color:var(--muted);max-width:860px">AI 对游戏的价值分两层：<b style="color:var(--ink)">生产提效</b>让旧玩法更便宜（本课大部分内容），<b style="color:var(--ink)">体验创新</b>让过去不可能的玩法第一次成立。制作人两个都要想，但第二个才决定你能不能做出别人没有的东西。</p>
+  <div class="grid g4" style="margin-top:24px">
+    <div class="card"><span class="tag cyan">方向一</span><h4>世界即时生成</h4><p>场景不再全部预制，玩家一句话就可能改变可探索空间。难点：持续一致、可设计、可控。</p></div>
+    <div class="card"><span class="tag" style="color:var(--purple);border-color:var(--purple)">方向二</span><h4>角色真正回应</h4><p>NPC 记住关系、理解上下文并形成长期状态。难点：人设、剧情边界、成本与安全。</p></div>
+    <div class="card"><span class="tag" style="color:var(--lime);border-color:var(--lime)">方向三</span><h4>玩家成为共同作者</h4><p>把创作入口做进核心循环：角色、关卡、规则或叙事由玩家和 AI 共创。</p></div>
+    <div class="card"><span class="tag gold">方向四</span><h4>持续运营闭环</h4><p>AI 帮制作人分析反馈、生成变体、做活动素材，但上线决定仍由人和数据把关。</p></div>
+  </div>
+
+  <div class="composer">
+    <span class="pix">EXERCISE · 体验命题生成器</span>
+    <h3 style="margin-top:8px">写一句「没有 AI 就不成立」的体验命题</h3>
+    <p style="font-size:14.5px;color:var(--muted)">组合或自由改写，然后回答最后一个问题：它的 30 秒可玩验证版长什么样？想不出来，就说明还没缩到最小。</p>
+    <div style="margin-top:10px">
+      玩家是 <select id="cRole">
+        <option>一个深夜食堂老板</option><option>一只迷路的史莱姆</option><option>一名星际快递员</option><option>一个地牢里的宝箱怪</option><option>一位退休的英雄</option><option>（自己填）</option>
+      </select>
+      AI 负责 <select id="cAI">
+        <option>实时生成玩家口述的关卡</option><option>让每个 NPC 记住玩家做过的每件事</option><option>把玩家随手涂鸦变成可用技能</option><option>根据玩家情绪动态改写剧情走向</option><option>让敌人的战术每局都从对局里学习进化</option>
+      </select>
+      核心乐趣是 <select id="cFun">
+        <option>说出离谱点子并真的看到它生效</option><option>和「活的」角色建立长期关系</option><option>创造别人没见过的组合</option><option>在永远不重样的世界里探索</option>
+      </select>
+    </div>
+    <div class="out" id="cOut">选择一个组合，这里会生成你的体验命题。</div>
+  </div>
+  <div class="note green"><b>下一步永远是同一个：</b>把命题缩成 30 秒可试玩版本，回到上方「从 0 六步」把它做出来。创意不落到 Demo，就永远只是聊天。</div>
+</div></section>
+
+<section id="homework"><div class="wrap">
+  <span class="pix">ASSIGNMENT · 学员作业</span>
+  <h2>课后作业：三档，各取所需</h2>
+  <p style="color:var(--muted);max-width:860px">作业评分不看画面炫不炫，只看<b style="color:var(--ink)">证据链</b>：能不能跑、有没有证据、边界清不清、记录全不全。截止时间由讲师安排；提交前先把账号、密钥从文件夹里拿干净。</p>
+
+  <div class="grid g3" style="margin-top:26px">
+    <div class="card" style="border-color:rgba(197,225,189,.45)">
+      <span class="tag gold">必做 · 人人要交</span>
+      <h4>作业一：我的第一个 Demo</h4>
+      <p style="font-size:14.5px">按「从 0 六步」从自己的空文件夹做一个「收集星星」，提交：</p>
+      <p style="font-size:14px;color:var(--green)">① 30 秒第一版（能开、计分、结束、重开）<br>② 只改 45 秒的修改版（保留原版）<br>③ 两条真实发送给 AI 的消息<br>④ 自己写的试玩记录<br>⑤ 制作记录.txt</p>
+      <p style="font-size:13.5px;color:var(--dim)">用现成的提交模板逐项填：<code>practice/作业提交模板.txt</code>。解压到另一个位置还能打开才算数。</p>
+    </div>
+    <div class="card" style="border-color:rgba(77,232,255,.5)">
+      <span class="tag cyan">进阶 · 推荐</span>
+      <h4>作业二：塔防八轮挑战</h4>
+      <p style="font-size:14.5px">自选题材（不限塔防），按 R0→R7 的节奏走完一轮完整制作，提交：</p>
+      <p style="font-size:14px;color:var(--green)">① 八轮各一条真实指令 + 对应证据（日志/截图/录屏）<br>② 至少一次故障的「四要素」反馈记录<br>③ 最终版 30 秒试玩录屏<br>④ 练习单导出的练习记录.txt</p>
+      <p style="font-size:13.5px;color:var(--dim)">先做题再动手：<a href="塔防实操练习单.html">塔防实操练习单</a>（每轮先自己写指令，再对答案）。</p>
+    </div>
+    <div class="card" style="border-color:rgba(255,93,162,.45)">
+      <span class="tag coral">选做 · 创新</span>
+      <h4>作业三：体验命题验证</h4>
+      <p style="font-size:14.5px">用下方「创新思维」的生成器写一句「没有 AI 就不成立」的体验命题，然后：</p>
+      <p style="font-size:14px;color:var(--green)">① 把命题缩成 30 秒可玩版本<br>② 做出来，找 1 个同学试玩<br>③ 提交命题、Demo 文件、同学的 3 句原话反馈<br>④ 写清：命题被证实了还是被推翻了</p>
+      <p style="font-size:13.5px;color:var(--dim)">被推翻也是满分答案——Demo 的意义就是便宜地知道不行。</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:34px">验收四维：你的作业怎么被看</h3>
+  <table class="flow">
+    <tr><th style="width:14%">维度</th><th>合格</th><th>优秀</th></tr>
+    <tr><td><b>能跑</b></td><td>文件发给任何人，双击就能玩，不需要你的口头解释</td><td>换台电脑、解压到新位置，依然能跑</td></tr>
+    <tr><td><b>证据</b></td><td>每轮改动有试玩记录或截图，不是「AI 说完成了」</td><td>有日志/流水/前后对照等可复核的硬证据</td></tr>
+    <tr><td><b>边界</b></td><td>指令里写了禁改范围，旧功能没被顺手改坏</td><td>表现层与数值层分离，改美观不动平衡</td></tr>
+    <tr><td><b>记录</b></td><td>有制作记录，别人能接手继续改</td><td>记录里如实写了「未检查项」和已知问题</td></tr>
+  </table>
+
+  <div class="note coral" style="margin-top:24px"><b>提交规范：</b>文件夹命名 <code>姓名_作业X_日期</code>，完整压缩为 ZIP 后按讲师给的 SVN 路径提交（SVN 配置见第一节正课最后一关）。<b>不要</b>只交截图或聊天记录；<b>不要</b>把课堂预制矿工文件当作业；<b>不要</b>包含账号、密钥和公司内部资料。</div>
+</div></section>
+
+<footer><div class="wrap">
+  <p><b style="color:var(--ink)">课后作业：</b>见上方 <a href="#homework">学员作业</a> 三档要求与验收四维；提交模板用 <code>practice/作业提交模板.txt</code>，随堂练习用 <a href="塔防实操练习单.html">塔防实操练习单</a>。操作细节查 <a href="新手操作手册.html">新手操作手册</a>，延伸学习查 <a href="课后参考.html">课后参考</a>。</p>
+  <p>本页所有本地视频与 Demo 离线可用；「外部范例」一节需要联网。模拟工作台是教学模拟，不代表真实 AI 的输出；真实项目请始终亲自打开文件试玩验收。页面进度只存在你自己的浏览器里。版本：2026-09-07。</p>
+</div></footer>
+
+<div id="guide" aria-hidden="true">
+  <div id="bubble"><span class="who">スライム GUIDE</span><span class="close" id="bubbleClose">✕</span><div class="txt" id="bubbleTxt"></div></div>
+  <svg id="guideSlime" viewBox="0 0 120 110">
+    <path d="M60 12 C 90 12 108 44 108 68 C 108 92 88 104 60 104 C 32 104 12 92 12 68 C 12 44 30 12 60 12 Z" fill="#7ecfff" opacity=".92"/>
+    <path d="M60 12 C 90 12 108 44 108 68 C 108 92 88 104 60 104 C 32 104 12 92 12 68 C 12 44 30 12 60 12 Z" fill="none" stroke="#4a90c2" stroke-width="3"/>
+    <ellipse cx="42" cy="30" rx="12" ry="7" fill="#fff" opacity=".55" transform="rotate(-18 42 30)"/>
+    <g class="eyes">
+      <circle cx="44" cy="62" r="7" fill="#1b2b33"/><circle cx="46.5" cy="59.5" r="2.6" fill="#fff"/>
+      <circle cx="78" cy="62" r="7" fill="#1b2b33"/><circle cx="80.5" cy="59.5" r="2.6" fill="#fff"/>
+    </g>
+    <circle cx="32" cy="74" r="5" fill="#ff9ec4" opacity=".7"/><circle cx="90" cy="74" r="5" fill="#ff9ec4" opacity=".7"/>
+    <path d="M 52 76 Q 60 84 70 76" fill="none" stroke="#1b2b33" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+
+/* ---------- 复制按钮 ---------- */
+$$('.promptbox .copy').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var box=btn.parentElement;var txt=Array.prototype.filter.call(box.childNodes,function(n){return n.nodeType===3}).map(function(n){return n.textContent}).join('').trim();
+    function done(){btn.textContent='已复制 ✓';setTimeout(function(){btn.textContent='复制'},1500)}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,done)}
+    else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta);done()}
+  });
+});
+
+/* ---------- 六步进度 ---------- */
+var stepState=load('demo-lab-steps-v1',{});
+$$('#zeroSteps .step').forEach(function(st){
+  var k=st.getAttribute('data-step');var cb=st.querySelector('input[type=checkbox]');
+  if(stepState[k]){cb.checked=true;st.classList.add('done')}
+  cb.addEventListener('change',function(){stepState[k]=cb.checked;store('demo-lab-steps-v1',stepState);st.classList.toggle('done',cb.checked)});
+});
+
+/* ---------- 小游戏 ---------- */
+var cv=$('#game'),ctx=cv.getContext('2d'),W=640,H=400;
+var BASE={x:16,y:328,w:92,h:58};
+var cfg={duration:30,hazard:false,deposit:false,bug:false};
+var generated=false,state='idle',elapsed=0,score=0,bag=[],invincibleUntil=0;
+var player={x:BASE.x+BASE.w/2,y:BASE.y+BASE.h/2,r:9,speed:185};
+var keys={},pointer=null,stars=[],starSeq=0,hazard={x:80,y:186,w:26,h:26,dir:1,speed:115};
+var verLabel='尚未生成';
+
+function rnd(a,b){return a+Math.random()*(b-a)}
+function spawnStar(fixed){
+  var s={id:starSeq++,x:0,y:0,r:7};
+  if(fixed){s.x=70;s.y=62}
+  else{var ok=false,tries=0;
+    while(!ok&&tries<60){tries++;s.x=rnd(30,W-30);s.y=rnd(30,H-30);
+      ok=!(s.x>BASE.x-24&&s.x<BASE.x+BASE.w+24&&s.y>BASE.y-24&&s.y<BASE.y+BASE.h+24)&&Math.hypot(s.x-player.x,s.y-player.y)>70}
+  }
+  return s;
+}
+function resetRound(){
+  player.x=BASE.x+BASE.w/2;player.y=BASE.y+BASE.h/2;pointer=null;
+  score=0;bag=[];elapsed=0;invincibleUntil=0;starSeq=0;
+  hazard.x=80;hazard.dir=1;
+  stars=[];for(var i=0;i<8;i++)stars.push(spawnStar(false));
+  if(cfg.bug&&stars.length){stars[0]=spawnStar(true);stars[0].id=0}
+  state=generated?'playing':'idle';
+}
+function starValue(s){return (cfg.bug&&s.id===0)?20:10}
+
+cv.addEventListener('keydown',function(e){
+  var k=e.key.toLowerCase();
+  if(['arrowup','arrowdown','arrowleft','arrowright',' '].indexOf(k)>=0)e.preventDefault();
+  keys[k]=true;
+  if(k==='r'&&generated)resetRound();
+});
+cv.addEventListener('keyup',function(e){keys[e.key.toLowerCase()]=false});
+cv.addEventListener('blur',function(){keys={};pointer=null});
+cv.addEventListener('pointerdown',function(e){cv.focus();var r=cv.getBoundingClientRect();pointer={x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};if(state==='over'&&generated)resetRound()});
+cv.addEventListener('pointermove',function(e){if(pointer){var r=cv.getBoundingClientRect();pointer={x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height}}});
+cv.addEventListener('pointerup',function(){pointer=null});
+
+var last=0;
+function loop(ts){
+  requestAnimationFrame(loop);
+  var dt=Math.min(0.05,(ts-last)/1000||0);last=ts;
+  if(state==='playing'){
+    elapsed+=dt;
+    var dx=0,dy=0;
+    if(keys['arrowup']||keys['w'])dy-=1;if(keys['arrowdown']||keys['s'])dy+=1;
+    if(keys['arrowleft']||keys['a'])dx-=1;if(keys['arrowright']||keys['d'])dx+=1;
+    if(!dx&&!dy&&pointer){var vx=pointer.x-player.x,vy=pointer.y-player.y,d=Math.hypot(vx,vy);if(d>6){dx=vx/d;dy=vy/d}else pointer=null}
+    if(dx||dy){var m=Math.hypot(dx,dy);player.x=Math.max(player.r,Math.min(W-player.r,player.x+dx/m*player.speed*dt));player.y=Math.max(player.r,Math.min(H-player.r,player.y+dy/m*player.speed*dt))}
+    // stars
+    for(var i=stars.length-1;i>=0;i--){var s=stars[i];
+      if(Math.hypot(s.x-player.x,s.y-player.y)<s.r+player.r){
+        var v=starValue(s);
+        if(cfg.deposit)bag.push(v);else score+=v;
+        stars.splice(i,1);stars.push(spawnStar(false));
+      }}
+    // hazard
+    if(cfg.hazard){
+      hazard.x+=hazard.dir*hazard.speed*dt;
+      if(hazard.x>W-60-hazard.w){hazard.dir=-1}if(hazard.x<60){hazard.dir=1}
+      var cx=Math.max(hazard.x,Math.min(player.x,hazard.x+hazard.w)),cy=Math.max(hazard.y,Math.min(player.y,hazard.y+hazard.h));
+      if(Math.hypot(player.x-cx,player.y-cy)<player.r&&ts>invincibleUntil){
+        player.x=BASE.x+BASE.w/2;player.y=BASE.y+BASE.h/2;bag=[];invincibleUntil=ts+1000;
+      }
+    }
+    // deposit
+    if(cfg.deposit&&bag.length&&player.x>BASE.x&&player.x<BASE.x+BASE.w&&player.y>BASE.y&&player.y<BASE.y+BASE.h){
+      score+=bag.reduce(function(a,b){return a+b},0);bag=[];
+    }
+    if(elapsed>=cfg.duration){state='over'}
+  }
+  draw(ts);
+}
+function drawStarShape(x,y,r,color,glow){
+  ctx.save();ctx.translate(x,y);ctx.beginPath();
+  for(var i=0;i<10;i++){var a=-Math.PI/2+i*Math.PI/5,rr=i%2?r*0.45:r;ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr)}
+  ctx.closePath();ctx.fillStyle=color;
+  if(glow){ctx.shadowColor='#ff9a86';ctx.shadowBlur=12}
+  ctx.fill();ctx.restore();
+}
+function draw(ts){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0e1a20';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(58,84,81,.35)';ctx.lineWidth=1;
+  for(var g=40;g<W;g+=40){ctx.beginPath();ctx.moveTo(g,0);ctx.lineTo(g,H);ctx.stroke()}
+  for(var g2=40;g2<H;g2+=40){ctx.beginPath();ctx.moveTo(0,g2);ctx.lineTo(W,g2);ctx.stroke()}
+  // base
+  ctx.fillStyle='rgba(255,209,124,.14)';ctx.fillRect(BASE.x,BASE.y,BASE.w,BASE.h);
+  ctx.strokeStyle='#ffd17c';ctx.strokeRect(BASE.x,BASE.y,BASE.w,BASE.h);
+  ctx.fillStyle='#ffd17c';ctx.font='12px Noto,sans-serif';ctx.fillText('基地',BASE.x+30,BASE.y+BASE.h+16);
+  if(!generated){
+    ctx.fillStyle='#f9ebcd';ctx.font='20px Noto,sans-serif';ctx.textAlign='center';
+    ctx.fillText('先在右侧「发送指令 · 生成第一版」',W/2,H/2-10);
+    ctx.font='14px Noto,sans-serif';ctx.fillStyle='#8aa096';
+    ctx.fillText('真实环境里，这一步对应 AI 把 index.html 写进你的文件夹',W/2,H/2+22);ctx.textAlign='left';
+    return;
+  }
+  // stars
+  stars.forEach(function(s){
+    var buggy=cfg.bug&&s.id===0;
+    drawStarShape(s.x,s.y,buggy?8:7,buggy?'#ffb39f':'#ffd17c',buggy);
+  });
+  // hazard
+  if(cfg.hazard){
+    ctx.fillStyle='#c0392b';ctx.fillRect(hazard.x,hazard.y,hazard.w,hazard.h);
+    ctx.fillStyle='#fff';ctx.font='bold 16px Noto,sans-serif';ctx.fillText('!',hazard.x+9,hazard.y+19);
+  }
+  // player
+  var blink=ts<invincibleUntil&&Math.floor(ts/120)%2===0;
+  if(!blink){
+    ctx.beginPath();ctx.arc(player.x,player.y,player.r,0,Math.PI*2);ctx.fillStyle='#c5e1bd';ctx.fill();
+    ctx.strokeStyle='#5f8a6a';ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle='#243b40';ctx.beginPath();ctx.arc(player.x-3,player.y-2,1.6,0,7);ctx.arc(player.x+3,player.y-2,1.6,0,7);ctx.fill();
+  }
+  if(pointer){ctx.beginPath();ctx.arc(pointer.x,pointer.y,4,0,7);ctx.strokeStyle='#9fd8d0';ctx.stroke()}
+  if(state==='over'){
+    ctx.fillStyle='rgba(11,20,24,.82)';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#ffd17c';ctx.font='bold 26px Noto,sans-serif';ctx.textAlign='center';
+    ctx.fillText('时间到！得分 '+score,W/2,H/2-14);
+    ctx.font='15px Noto,sans-serif';ctx.fillStyle='#f9ebcd';
+    ctx.fillText('按 R 或点击画面重开 · 然后去右侧完成验收',W/2,H/2+18);ctx.textAlign='left';
+  }
+  // HUD DOM
+  $('#hudScore').textContent=score;
+  $('#hudTime').textContent=Math.max(0,Math.ceil(cfg.duration-elapsed));
+  $('#hudBagWrap').style.display=cfg.deposit?'':'none';
+  $('#hudBag').textContent=bag.length;
+  $('#hudVer').textContent=verLabel+(cfg.bug?'（含故障）':'');
+}
+
+/* ---------- 指令台 ---------- */
+var LOGS={
+  v1:['读取工作目录 …（空文件夹）','创建 index.html：角色移动 / 星星 +10 / 30 秒结算 / 可重开','自检：四项规则逐条对应代码','完成：请制作人打开试玩并验收'],
+  time:['读取当前 index.html','定位规则：回合时长 duration = 30','修改：duration 30 → 45，其余不动','自检：开局与重开均为 45 秒','完成：请核对计分与操作未被改动'],
+  hazard:['读取当前 index.html','新增：红色危险块，x∈[60,554] 往返巡逻','碰撞 → 回基地，分数保留，无敌 1 秒','自检：碰撞只触发一次，无敌期不重复扣','完成：请试玩验收三条'],
+  deposit:['读取当前 index.html','修改计分时机：拾取 → 背包；基地 → 入账','联动：危险块碰撞掉落全部背包','自检：入账总额 = 背包内星星价值之和','完成：这是玩法命题改动，请重点感受玩家选择变化'],
+  bug:['（模拟事故）修改 index.html 时误将 id=0 的星星价值写成 20','AI 自测未覆盖该路径，报告「完成」','—— 现在轮到制作人发现问题了'],
+  fix:['读取反馈：操作→实际→预期→范围，要素齐全','定位：id=0 星星价值 20 → 10','自检：全部星星 +10；其他规则与故障前一致','完成：请复玩同一路径核对']
+};
+var ACCEPT={
+  v1:['星星碰到会消失，且只加 10 分','时间到 0 自动结算出总分','结束后按 R 或点击能重新开始'],
+  time:['开局显示 45 秒','重开一局仍是 45 秒','计分、移动、结束规则都没有变'],
+  hazard:['红色块在画面中部来回巡逻','碰到后人物回基地，已得分数保留','之后约 1 秒人物闪烁（无敌）'],
+  deposit:['捡星星只进背包，不直接加分','回到基地，背包星星一次性入账','（若危险块已开启）被撞会掉落背包'],
+  bug:['找到了那颗 +20 的星星（提示：左上角）','已在心里或纸上写清「操作→实际→预期→范围」'],
+  fix:['同一颗星星现在只加 10 分','移动、时间、其他星星都与故障前一致']
+};
+var RECORDS={
+  v1:'第 1 轮｜生成第一版：方向键移动 / 星星 +10 / 30 秒结算 / 可重开。验收：三项全过。',
+  time:'第 2 轮｜时长 30→45 秒，其他不变。验收：开局与重开均 45 秒，回归无变化。',
+  hazard:'第 3 轮｜新增巡逻危险块：碰撞回基地、分数保留、1 秒无敌。验收：三条全过。',
+  deposit:'第 4 轮｜计分时机改为背包带回入账，碰撞掉背包。验收：入账与掉落均正确。观察：玩家开始权衡「再捡一颗还是先回家」。',
+  bug:'第 5 轮｜发现故障：左上角星星 +20（应为 +10）。已按四要素整理反馈。',
+  fix:'第 5′轮｜故障修复：全部星星 +10，其他行为回归一致。'
+};
+var roundNo=0;
+function logLines(cmd,doneCb){
+  var box=$('#agentlog');
+  var cur=box.querySelector('.cur');
+  if(!cur){cur=document.createElement('span');cur.className='cur'}
+  function put(html){box.insertAdjacentHTML('beforeend',html);box.appendChild(cur);box.scrollTop=box.scrollHeight}
+  put('<div class="sys">── 收到指令 ──</div>');
+  var lines=LOGS[cmd],i=0;
+  (function next(){
+    if(i<lines.length){
+      var cls=(i===lines.length-1)?'ok':'';
+      put('<div class="'+cls+'">'+lines[i]+'</div>');
+      i++;setTimeout(next,480);
+    }else if(doneCb)doneCb();
+  })();
+}
+function showAccept(cmd){
+  $('#acceptBox').style.display='';
+  var wrap=$('#acceptItems');wrap.innerHTML='';
+  ACCEPT[cmd].forEach(function(t){
+    var lb=document.createElement('label');var cb=document.createElement('input');cb.type='checkbox';
+    lb.appendChild(cb);lb.appendChild(document.createTextNode(t));wrap.appendChild(lb);
+    cb.addEventListener('change',checkAll);
+  });
+  function checkAll(){
+    var all=Array.prototype.every.call(wrap.querySelectorAll('input'),function(c){return c.checked});
+    $('#recordBtn').disabled=!all;
+    if(all)guideSay('验收全部打勾！点下方绿色按钮，把这一轮记入制作记录。');
+  }
+  $('#recordBtn').onclick=function(){
+    var rec=$('#record');rec.value=rec.value.replace(/\n?当前规则：.*$/,'');
+    rec.value+=RECORDS[cmd]+'\n';
+    if(cmd==='v1')rec.value+='当前规则：见上方各轮记录；未检查项：移动端触控、长时间运行稳定性\n';
+    $('#recordBtn').disabled=true;$('#recordBtn').textContent='已记入 ✓';
+    guideSay('已归档！这一轮画上句号。接着点下一张指令卡，继续推进。');
+    setTimeout(function(){$('#recordBtn').textContent='全部打勾后，记入制作记录'},1800);
+  };
+}
+var applied={};
+$$('.cmd-card').forEach(function(card){
+  var cmd=card.getAttribute('data-cmd');var btn=card.querySelector('.send');
+  btn.addEventListener('click',function(){
+    if(applied[cmd])return;applied[cmd]=true;
+    btn.disabled=true;btn.textContent='已发送 ✓';card.classList.add('applied');
+    $('#game').focus();
+    if(cmd==='v1'){generated=true;verLabel='第一版'}
+    if(cmd==='time'){cfg.duration=45;verLabel='45秒版'}
+    if(cmd==='hazard'){cfg.hazard=true;verLabel='危险版'}
+    if(cmd==='deposit'){cfg.deposit=true;verLabel='背包版'}
+    if(cmd==='bug'){cfg.bug=true;document.querySelector('.cmd-card[data-cmd="fix"]').style.display=''}
+    if(cmd==='fix'){cfg.bug=false}
+    logLines(cmd,function(){resetRound();showAccept(cmd)});
+    if(GUIDE_MSG[cmd])guideSay(GUIDE_MSG[cmd],8000);
+    if(cmd==='v1')$('#hudHint').textContent='点画面获得焦点：方向键 / WASD 移动，或点地面朝目标走；R 重开';
+  });
+});
+$('#copyRecord').addEventListener('click',function(){
+  var rec=$('#record'),btn=this;rec.select();
+  function done(){btn.textContent='已复制 ✓';setTimeout(function(){btn.textContent='复制制作记录'},1500)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(rec.value).then(done,done)}
+  else{try{document.execCommand('copy')}catch(e){}done()}
+});
+
+/* ---------- 体验命题生成器 ---------- */
+function compose(){
+  var r=$('#cRole').value,a=$('#cAI').value,f=$('#cFun').value;
+  if(r==='（自己填）')r='「由你定义的角色」';
+  $('#cOut').textContent='体验命题：玩家是'+r+'，AI 负责'+a+'，核心乐趣是'+f+'。下一步：把它缩成一个 30 秒能试玩的最小版本——只保留一个动作、一个结果、一条验收链。';
+}
+['cRole','cAI','cFun'].forEach(function(id){document.getElementById(id).addEventListener('change',compose)});
+
+/* ---------- 星空背景 ---------- */
+(function(){
+  var bg=document.getElementById('bgfx');if(!bg)return;var bctx=bg.getContext('2d');
+  var sw,sh,stars=[],shoots=[],petals=[],lastShoot=0;
+  var reduced=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function size(){sw=bg.width=innerWidth;sh=bg.height=innerHeight}
+  size();addEventListener('resize',size);
+  var COLORS=['#ffffff','#4de8ff','#ffd17c','#ff5da2'];
+  for(var i=0;i<150;i++)stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.4+.4,s:Math.random()*.00022+.00006,c:COLORS[i%4],p:Math.random()*7});
+  for(var j=0;j<14;j++)petals.push({x:Math.random(),y:Math.random(),s:.00035+Math.random()*.0004,p:Math.random()*7,r:Math.random()*7,vr:(Math.random()-.5)*.02,w:5+Math.random()*5});
+  function frame(t){
+    bctx.clearRect(0,0,sw,sh);
+    stars.forEach(function(s){
+      s.y+=s.s;if(s.y>1)s.y=0;
+      var a=.35+.4*Math.abs(Math.sin(t/900+s.p));
+      bctx.globalAlpha=a;bctx.fillStyle=s.c;
+      bctx.beginPath();bctx.arc(s.x*sw,s.y*sh,s.r,0,7);bctx.fill();
+    });
+    bctx.globalAlpha=1;
+    petals.forEach(function(p){
+      p.y+=p.s;if(p.y>1.05){p.y=-.05;p.x=Math.random()}
+      p.r+=p.vr;
+      var px=(p.x+Math.sin(t/1400+p.p)*.018)*sw,py=p.y*sh;
+      bctx.save();bctx.translate(px,py);bctx.rotate(p.r);
+      bctx.globalAlpha=.55;bctx.fillStyle='#ffb7d5';
+      bctx.beginPath();bctx.ellipse(0,0,p.w,p.w*.55,0,0,7);bctx.fill();
+      bctx.globalAlpha=.3;bctx.fillStyle='#ff8fb8';
+      bctx.beginPath();bctx.ellipse(-p.w*.2,0,p.w*.5,p.w*.3,0,0,7);bctx.fill();
+      bctx.restore();
+    });
+    bctx.globalAlpha=1;
+    if(t-lastShoot>5000+Math.random()*5000){lastShoot=t;shoots.push({x:Math.random()*sw*.8,y:Math.random()*sh*.35,vx:9,vy:4,life:1})}
+    for(var i=shoots.length-1;i>=0;i--){var m=shoots[i];m.x+=m.vx;m.y+=m.vy;m.life-=.02;
+      if(m.life<=0){shoots.splice(i,1);continue}
+      var g=bctx.createLinearGradient(m.x,m.y,m.x-70,m.y-32);
+      g.addColorStop(0,'rgba(157,232,255,'+(.8*m.life)+')');g.addColorStop(1,'rgba(157,232,255,0)');
+      bctx.strokeStyle=g;bctx.lineWidth=1.6;bctx.beginPath();bctx.moveTo(m.x,m.y);bctx.lineTo(m.x-70,m.y-32);bctx.stroke();
+    }
+    if(!reduced)requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ---------- RPG 状态条充能 ---------- */
+$$('.stat .bar i[data-fill]').forEach(function(bar){
+  var target=+bar.getAttribute('data-fill');
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){bar.style.width=target+'%';return}
+  setTimeout(function(){
+    var t0=null;
+    function tick(ts){
+      if(!t0)t0=ts;var p=Math.min(1,(ts-t0)/1300);var e=1-Math.pow(1-p,3);
+      bar.style.width=(target*e)+'%';
+      if(p<1)requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  },350);
+});
+
+/* ---------- 史莱姆引导员 ---------- */
+var GUIDE_MSG={
+  v1:'文件生成好啦！点左边画面，用方向键或 WASD 移动，吃颗星星试试。玩完记得来右边打勾验收！',
+  time:'「只改一个数字」是最安全的指令。看倒计时是不是 45 秒了？顺手确认计分没被动过。',
+  hazard:'红色危险块上场！故意撞一次：人回基地、分数保留、闪烁无敌。三条都亲眼看到才算过。',
+  deposit:'玩法命题来了：星星先进背包，回基地才入账。问问自己——你会多捡一颗，还是先回家？',
+  bug:'嘘……我听说有颗星星多给了分。提示：去左上角碰第一颗星星，然后想想四要素怎么写。',
+  fix:'「操作→实际→预期→范围」，这条反馈很专业！复玩同一路径，确认那颗星星回到 +10。'
+};
+var GUIDE_TIPS=[
+  '制作人秘诀：一次只改一件事，改完马上试玩。',
+  'AI 说「完成了」不算数，你亲手玩过才算。',
+  '卡住时把问题写成四行：操作 → 实际 → 预期 → 范围。',
+  '没灵感？去「塔防实操拆解」抄一条话术试试。',
+  '数值进配置表——这是策划和 AI 的停战线。',
+  'Demo 被推翻也是成果：你便宜地知道了不行。'
+];
+var bubbleEl=$('#bubble'),bubbleTxt=$('#bubbleTxt'),bubbleTimer=null,typeTimer=null;
+function guideSay(text,hold){
+  if(!bubbleEl)return;
+  clearTimeout(bubbleTimer);clearInterval(typeTimer);
+  bubbleEl.classList.add('show');
+  var reduced=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduced){bubbleTxt.textContent=text}
+  else{
+    bubbleTxt.innerHTML='';var i=0;
+    typeTimer=setInterval(function(){
+      i++;bubbleTxt.textContent=text.slice(0,i);
+      var c=document.createElement('span');c.className='caret';bubbleTxt.appendChild(c);
+      if(i>=text.length)clearInterval(typeTimer);
+    },28);
+  }
+  bubbleTimer=setTimeout(function(){bubbleEl.classList.remove('show')},hold||7000);
+}
+$('#bubbleClose').addEventListener('click',function(e){e.stopPropagation();clearTimeout(bubbleTimer);bubbleEl.classList.remove('show')});
+bubbleEl.addEventListener('click',function(){clearTimeout(bubbleTimer);bubbleEl.classList.remove('show')});
+$('#guideSlime').addEventListener('click',function(){guideSay(GUIDE_TIPS[Math.floor(Math.random()*GUIDE_TIPS.length)])});
+setTimeout(function(){
+  try{if(sessionStorage.getItem('slimeHi'))return;sessionStorage.setItem('slimeHi','1')}catch(e){}
+  guideSay('嗨！我是史莱姆引导员。推荐路线：从 0 六步 → 亲手搓一轮 → 塔防攻略。卡住时点我一下！',9000);
+},1600);
+if('IntersectionObserver' in window){
+  var playSeen=false;
+  new IntersectionObserver(function(es,obs){
+    es.forEach(function(en){
+      if(en.isIntersecting&&!playSeen){playSeen=true;
+        guideSay('到这里就是实战区了：点「① 生成第一版」，然后一轮一轮来。',7000);
+        obs.disconnect();}
+    });
+  },{threshold:.2}).observe(document.getElementById('play'));
+}
+
+/* ---------- 启动 ---------- */
+resetRound();requestAnimationFrame(loop);
+document.body.setAttribute('data-ready','1');
+document.title+=' · OK';
+})();
+</script>
+</body>
+</html>

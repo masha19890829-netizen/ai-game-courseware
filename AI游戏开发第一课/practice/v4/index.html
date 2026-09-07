@@ -1,0 +1,142 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>像素矿工 · v4 教学版本</title><style>:root{color-scheme:dark;font-family:'Microsoft YaHei',sans-serif;background:#111c2c;color:#fff0cf}*{box-sizing:border-box}body{margin:0;padding:18px;min-height:100dvh}button{font:inherit;cursor:pointer;min-height:44px;border:2px solid #7b8f83;padding:9px 17px;background:#263d42;color:#fff0cf;box-shadow:3px 3px #0b111d}button:hover{background:#395454}button:focus-visible,canvas:focus-visible{outline:3px solid #ffd46b;outline-offset:3px}button:disabled{opacity:.4;cursor:default}.primary{background:#ffd46b;color:#182938;border-color:#ffe8a5;font-weight:bold}.shell{max-width:min(1100px,calc((100dvh - 275px)*16/9));margin:auto}.heading{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:15px}.heading h1{font-size:24px;margin:3px 0}.heading p{font-size:14px;color:#adc4bd;margin:6px 0}.build-label{color:#ffd46b;font-size:13px;letter-spacing:1px}.hud{display:flex;gap:24px;flex-wrap:wrap;background:#233440;padding:12px 20px;border:1px solid #4c686b;align-items:center}.hud span{font-size:14px;color:#b4c7c0}.hud b{font-size:25px;color:#fff0cf;margin-left:7px}.board{position:relative;border:4px solid #415d64;background:#172f39}.board canvas{display:block;width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated;touch-action:none}.overlay{position:absolute;inset:0;display:grid;place-items:center;background:#09142694;pointer-events:none}.overlay[hidden]{display:none}.overlay>div{text-align:center;background:#172a37f5;border:2px solid #e9c271;padding:22px;max-width:90%}.overlay h2{margin:0 0 12px;font-size:28px}.overlay p{line-height:1.9;margin:6px 0;font-size:16px}.controls{display:flex;flex-wrap:wrap;gap:12px;margin-top:15px;align-items:center}.notice{min-height:25px;color:#ffd46b;font-size:16px;margin:12px 0}.rule{font-size:15px;color:#c1d2c8;line-height:1.8}.fault{padding:10px 15px;background:#573035;border:1px solid #d98b80;color:#ffd4ba;margin-bottom:12px}.hint{margin-left:auto;font-size:14px;color:#b6c7c2}.result-grid{display:flex;justify-content:center;flex-wrap:wrap;gap:22px;margin:12px 0}.result-grid b{font-size:25px;display:block;color:#ffd46b}.result-grid span{font-size:14px;color:#bcd0c6}.pops{pointer-events:none;position:absolute;inset:0;overflow:hidden}.pop{position:absolute;font-weight:bold;color:#ffdf85;font-size:23px;animation:pop .7s ease-out forwards;text-shadow:2px 2px #172131}.plain canvas{filter:saturate(.75)}.reduced .pop{animation:none;display:none}.shell:has(.fault:not([hidden])){max-width:min(1100px,calc((100dvh - 325px)*16/9))}@keyframes pop{to{transform:translateY(-35px);opacity:0}}@media(max-height:760px){body{padding:12px}.heading{margin-bottom:9px}.heading h1{font-size:20px}.heading p{display:none}.hud{padding:8px 15px}.controls{margin-top:10px;gap:9px}.notice{font-size:14px;min-height:20px;margin:6px 0}.rule{font-size:14px;margin:6px 0;line-height:1.6}.hint{font-size:12px}.controls button{font-size:14px;padding:8px 12px}.fault{font-size:13px;line-height:1.7}}@media(max-width:650px){.shell,.shell:has(.fault:not([hidden])){max-width:100%}.heading{display:block}.hud{gap:13px}.hud b{font-size:21px}.hint{width:100%;margin:0}.overlay h2{font-size:22px}.overlay p{font-size:14px}.heading p{line-height:1.7}}@media(max-height:450px){.shell,.shell:has(.fault:not([hidden])){max-width:800px}}@media(prefers-reduced-motion:reduce){.pop{display:none;animation:none}}
+:root{--tutorial-layout-version:2}
+@media(min-height:761px){.shell{max-width:min(1100px,calc((100dvh - 390px)*16/9))}.shell:has(.fault:not([hidden])){max-width:min(1100px,calc((100dvh - 460px)*16/9))}}
+</style></head><body><div class="shell"><header class="heading"><div><span id="build" class="build-label"></span><h1>像素矿工：我的第一个 Demo</h1><p>课程预制版本，可独立离线打开；不是点击后实时 AI 生成。</p></div></header><div id="faultBanner" class="fault" hidden>教学故障样本：故意让一块矿石加 20 分，用于练习描述问题。不是历史项目故障。</div><section class="hud"><span>剩余秒数 <b id="timer"></b></span><span>已入账 <b id="score">0</b></span><span id="carryCell">背包 <b id="carry">0</b></span><span>矿石价值 <b>10</b></span></section><div class="board"><canvas id="game" width="960" height="540" tabindex="0" aria-label="矿工游戏，用方向键或 WASD 移动，P 暂停"></canvas><div id="pops" class="pops"></div><div id="overlay" class="overlay"></div></div><div class="controls"><button id="start" class="primary">开始游戏</button><button id="pause" disabled>暂停 / P</button><button id="sound">声音：关</button><button id="feedback">表现：强化</button><span class="hint">方向键 / WASD · 点击地面 · 切出自动暂停</span></div><p id="notice" class="notice" role="status">先开始，再捡一块矿石。</p><p id="rules" class="rule"></p></div><script>window.TUTORIAL_BUILD={"id":"v4","stage":4};</script><script>/* Pure, deterministic rules for the four downloadable teaching builds. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.TutorialModel=api;})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  'use strict';
+  const WIDTH=960,HEIGHT=540,SPEED=170,BASE={x:120,y:290,radius:63};
+  const POINTS=[[266,175],[292,365],[402,109],[445,284],[450,425],[578,151],[599,341],[686,440],[762,111],[813,265],[840,424],[704,283]];
+  function rng(seed){let n=seed>>>0;return()=>((n=(Math.imul(n,1664525)+1013904223)>>>0)/4294967296);}
+  function createGame(stage=1,seed=5050,fault=false){stage=[1,2,3,4].includes(stage)?stage:1;const r=rng(seed);return {stage,seed,fault,duration:stage===1?30:45,version:stage===4?'B':'A',status:'ready',elapsed:0,player:{x:BASE.x,y:BASE.y,invulnerable:0,facing:1},ores:POINTS.map(([x,y],id)=>({id,x:x+Math.floor(r()*13)-6,y:y+Math.floor(r()*13)-6,cooldown:0})),collected:0,banked:0,carried:0,lost:0,returns:0,hits:0,insideBase:true,events:[],finished:false};}
+  function hazards(t){return [{x:510+155*Math.sin(t*.7),y:222},{x:622+160*Math.sin(t*.61+2),y:371},{x:785,y:240+118*Math.sin(t*.64+1)}];}
+  function start(g){if(g.status==='ready')g.status='running';}
+  function pause(g){if(g.status==='running')g.status='paused';}
+  function resume(g){if(g.status==='paused')g.status='running';}
+  function hit(g){if(g.player.invulnerable>0)return;const n=g.carried;g.lost+=n;g.carried=0;g.hits++;g.events.push({type:'hit',value:n,x:g.player.x,y:g.player.y});Object.assign(g.player,{x:BASE.x,y:BASE.y,invulnerable:1.5});g.insideBase=true;}
+  function update(g,dt,input={}){
+    if(g.status!=='running'||!Number.isFinite(dt)||dt<=0)return;
+    dt=Math.min(dt,.1,g.duration-g.elapsed);g.elapsed+=dt;const p=g.player;p.invulnerable=Math.max(0,p.invulnerable-dt);
+    let dx=input.x||0,dy=input.y||0;
+    if(!dx&&!dy&&input.target){const x=input.target.x-p.x,y=input.target.y-p.y,d=Math.hypot(x,y);if(d>3){const scale=Math.min(1,d/(SPEED*dt||1));dx=x/d*scale;dy=y/d*scale;}}
+    const len=Math.hypot(dx,dy);if(len>1){dx/=len;dy/=len;}if(dx)p.facing=dx>0?1:-1;
+    p.x=Math.max(37,Math.min(WIDTH-37,p.x+dx*SPEED*dt));p.y=Math.max(63,Math.min(HEIGHT-42,p.y+dy*SPEED*dt));
+    for(const ore of g.ores)if(!ore.cooldown&&Math.hypot(p.x-ore.x,p.y-ore.y)<24){ore.cooldown=1;g.collected++;const n=g.fault?20:10;if(g.stage===4)g.carried+=n;else g.banked+=n;g.events.push({type:'collect',x:ore.x,y:ore.y,value:n});}
+    const inside=Math.hypot(p.x-BASE.x,p.y-BASE.y)<BASE.radius;if(inside&&!g.insideBase)g.returns++;
+    if(inside&&g.carried){g.banked+=g.carried;g.events.push({type:'bank',value:g.carried,x:p.x,y:p.y});g.carried=0;}g.insideBase=inside;
+    if(g.stage>=3&&!inside)for(const enemy of hazards(g.elapsed))if(Math.hypot(p.x-enemy.x,p.y-enemy.y)<27){hit(g);break;}
+    if(g.elapsed>=g.duration-1e-8){g.elapsed=g.duration;g.finished=true;g.status='ended';g.events.push({type:'finish'});}
+  }
+  function result(g){return g.finished?{stage:g.stage,version:g.version,seed:g.seed,duration:g.duration,collected:g.collected,banked:g.banked,unbanked:g.carried,lost:g.lost,returns:g.returns,hits:g.hits}:null;}
+  return {WIDTH,HEIGHT,SPEED,BASE,rng,createGame,hazards,start,pause,resume,update,result};
+});
+</script><script>window.MinerModel=window.TutorialModel;</script><script>(function(root){
+  'use strict';
+  const P={ink:'#10212c',dark:'#132c37',floor:'#1d3a42',rock:'#32505a',edge:'#497177',mint:'#8ce5b3',gold:'#ffd46b',cream:'#fff0cd',red:'#f37672'};
+  const miner=['0000011111100000','0001122222211000','0012222222222100','0111113333111110','0001444444410000','0001451445410000','0001444444410000','0000144444100000','0001555555110000','0015566655551000','0145566655544100','0141566655144100','0001777777100000','0001770077100000','0011880088110000','0011110011110000'];
+  const slime=['0000001111000000','0000112222110000','0001222222221000','0012233223322100','0122233223322210','0122222222222210','0122224444222210','0012222222222100','0011111111111100'];
+  function rect(c,x,y,w,h,color){c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),w,h);}
+  function sprite(c,data,x,y,s,colors,flip=false){c.save();c.translate(Math.round(x),Math.round(y));if(flip){c.translate(data[0].length*s,0);c.scale(-1,1);}data.forEach((r,j)=>[...r].forEach((v,i)=>{if(v!=='0')rect(c,i*s,j*s,s,s,colors[+v]);}));c.restore();}
+  function crystal(c,x,y,small=false,phase=0,gold=false){
+    const s=small?.6:1, yy=y+(Math.sin(phase)*2);
+    c.save();c.translate(Math.round(x),Math.round(yy));c.scale(s,s);
+    if(gold){rect(c,-15,14,30,6,'#102b35');rect(c,-9,-12,18,29,'#ab743b');rect(c,-6,-21,12,36,'#ffcc64');rect(c,-3,-25,6,37,'#fff0aa');rect(c,-15,-2,8,18,'#d79340');rect(c,10,-8,7,22,'#ffc35b');c.restore();return;}
+    rect(c,-17,14,34,7,'#102b35');rect(c,-9,-16,18,33,'#226665');
+    rect(c,-6,-22,12,40,'#65c991');rect(c,-3,-25,6,44,'#b0f3bd');
+    rect(c,0,-13,8,25,'#90e8ad');rect(c,-15,-2,8,18,'#3a997e');rect(c,10,-8,7,22,'#61cba1');
+    rect(c,-3,-19,4,12,'#e9ffcf');c.restore();
+  }
+  function draw(c,g,options={}){
+    const t=options.reduced?0:(options.time||0), enhanced=options.enhanced!==false;
+    c.imageSmoothingEnabled=false;
+    rect(c,0,0,960,540,P.ink);
+    // A hand-built pixel mine: surface horizon, cut rock strata and luminous ore.
+    rect(c,0,0,960,48,'#25394a');
+    for(let i=0;i<30;i++){const h=14+((i*13)%21);rect(c,i*32,48-h,35,h,'#43636a');rect(c,i*32,45,32,6,'#627c70');}
+    rect(c,28,54,904,448,P.floor);
+    for(let y=56;y<510;y+=24)for(let x=30;x<930;x+=24){const n=(x*17+y*31)%127;
+      if(n<35)rect(c,x,y,22,22,'#203f45');else if(n<58)rect(c,x+4,y+5,6,3,'#2a4950');
+      if(n>116)rect(c,x+9,y+13,3,3,'#42625f');}
+    // Footpath from the lift to the deeper mine.
+    for(let x=80;x<860;x+=25){rect(c,x,284+Math.round(Math.sin(x*.014)*20),23,18,'#29474a');rect(c,x+5,307+Math.round(Math.sin(x*.014)*20),16,5,'#355257');}
+    // Border stones.
+    for(let x=0;x<960;x+=32){for(const y of [48,509]){rect(c,x,y,30,28,'#29434f');rect(c,x+3,y+2,24,7,'#45636c');rect(c,x+25,y+9,5,17,'#1b313c');}}
+    for(let y=72;y<510;y+=32)for(const x of [0,932]){rect(c,x,y,28,30,'#29434f');rect(c,x+2,y,7,27,'#45636c');}
+    // Edge vegetation, rocks and mining details: outside playable centre.
+    for(let i=0;i<18;i++){let x=48+i*49,y=i%2?488:77;rect(c,x,y,18,9,'#172f39');rect(c,x+3,y-5,12,8,'#4b6768');rect(c,x+6,y-7,7,3,'#6c8580');}
+    for(const [x,y] of [[193,103],[353,468],[553,84],[883,470],[883,107]]){
+      rect(c,x,y,4,17,'#1c6456');rect(c,x-6,y+3,7,4,'#49a375');rect(c,x+3,y-3,7,4,'#77c087');
+    }
+    // Rail line and mine elevator.
+    rect(c,90,58,5,175,'#889087');rect(c,143,58,5,175,'#889087');
+    for(let y=70;y<230;y+=25)rect(c,83,y,72,7,'#665843');
+    rect(c,49,219,143,134,'#132b35');rect(c,55,225,130,122,'#2e544e');
+    c.strokeStyle='#72b59c';c.lineWidth=3;c.setLineDash([7,6]);c.strokeRect(58,228,125,116);c.setLineDash([]);
+    rect(c,70,230,103,9,'#e7bd69');rect(c,68,229,10,41,'#987651');rect(c,164,229,10,41,'#987651');
+    rect(c,91,322,59,24,'#5a5746');rect(c,95,325,51,5,'#cda95a');rect(c,111,318,19,12,'#e4cb80');
+    c.fillStyle='#a3d8b4';c.font='bold 14px monospace';c.textAlign='center';c.fillText(options.danger===false?'START':'BASE',121,256);
+    // Patrol tracks are readable before a hit.
+    c.strokeStyle='#e27c6640';c.lineWidth=2;c.setLineDash([5,9]);
+    c.beginPath();if(options.danger!==false){c.moveTo(355,222);c.lineTo(665,222);c.moveTo(462,371);c.lineTo(782,371);c.moveTo(785,122);c.lineTo(785,358);}c.stroke();c.setLineDash([]);
+    for(const ore of g.ores){
+      if(ore.cooldown){rect(c,ore.x-10,ore.y+13,20,5,'#30545a');continue;}
+      if(enhanced){c.fillStyle='#83e2a40c';c.fillRect(ore.x-27,ore.y-28,54,55);}
+      crystal(c,ore.x,ore.y,false,t*2+ore.id,!!options.gold);
+    }
+    const enemies=options.danger===false?[]:root.MinerModel.hazards(g.elapsed);
+    enemies.forEach((e,i)=>{
+      rect(c,e.x-20,e.y+13,40,7,'#102b33');
+      const squish=options.reduced?0:Math.round(Math.sin(t*6+i)*2);
+      sprite(c,slime,e.x-24,e.y-15+squish,3,['','#291f34','#d56568','#ffe6bd','#6b354b']);
+      c.fillStyle=P.gold;c.font='bold 16px monospace';c.textAlign='center';c.fillText('!',e.x,e.y-23);
+    });
+    const p=g.player;
+    rect(c,p.x-16,p.y+15,33,6,'#0e2730');
+    const blink=p.invulnerable>0&&Math.floor(t*14)%2;
+    if(!blink){
+      const bob=options.moving&&!options.reduced?Math.round(Math.sin(t*17)*2):0;
+      sprite(c,miner,p.x-20,p.y-25+bob,2.5,['','#1b2633','#edb95d','#fff5bf','#e5b485','#64a9a0','#304f5b','#35415e','#907f73'],p.facing<0);
+      if(g.carried){rect(c,p.x-27,p.y-4,10,17,'#bd9761');rect(c,p.x-26,p.y-10,8,10,'#9feaab');}
+    }
+    // Atmospheric fixtures; their glow never obscures the game.
+    for(const [x,y] of [[24,164],[920,166],[24,432],[920,435]]){
+      rect(c,x,y,12,20,'#6c5545');rect(c,x-3,y-7,18,13,'#b8784e');rect(c,x,y-12,12,15,P.gold);rect(c,x+3,y-15,6,12,P.cream);
+    }
+    c.textAlign='left';c.font='bold 11px monospace';c.fillStyle='#9ab4a4';c.fillText('MINING SECTOR / 5050',40,32);
+    c.textAlign='right';c.fillStyle=P.gold;c.fillText('01  /  CRYSTAL CAVERN',918,32);
+  }
+  root.PixelWorld={draw,crystal,sprite,miner};
+})(typeof globalThis!=='undefined'?globalThis:this);
+</script><script>(function(){
+  'use strict';
+  const C=window.TUTORIAL_BUILD,M=window.TutorialModel,$=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
+  let g=M.createGame(C.stage,5050,!!C.fault),raf=0,last=0,keys={},target=null,disposed=false,enhanced=true,sound=false,audio=null,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const labels=['','01 · 第一版 / 30 秒','02 · 只改时间 / 45 秒','03 · 增加巡逻危险','04 · 带回基地才入账'];
+  const rule=C.stage<3?'碰到一块黄色矿石 +10 分，矿石消失。':C.stage===3?'捡矿立即 +10 分。碰到带 ! 的巡逻怪返回基地，已得分不扣。':'矿石先放入背包。回到 BASE 虚线框内存分；遇险丢失背包，已入账分不扣。';
+  $('build').textContent=C.fault?'教学故障样本 · 故意把 10 分写成 20 分':labels[C.stage];$('rules').textContent=rule;
+  $('faultBanner').hidden=!C.fault;$('carryCell').hidden=C.stage!==4;$('feedback').hidden=C.stage<3;
+  function clearInput(){keys={};target=null;}
+  function beep(type){if(!sound)return;try{audio??=new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();const o=audio.createOscillator(),v=audio.createGain();o.type='square';o.frequency.value=type==='hit'?140:650;o.connect(v);v.connect(audio.destination);v.gain.setValueAtTime(.025,audio.currentTime);v.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.1);o.start();o.stop(audio.currentTime+.1);}catch{sound=false;$('sound').textContent='声音不可用';}}
+  function halt(){cancelAnimationFrame(raf);raf=0;last=0;}
+  function paint(){window.PixelWorld.draw(ctx,g,{time:g.elapsed,danger:C.stage>=3,gold:true,reduced,enhanced,moving:Object.keys(keys).length>0});$('timer').textContent=Math.ceil(g.duration-g.elapsed);$('score').textContent=g.banked;$('carry').textContent=g.carried;$('pause').disabled=!['running','paused'].includes(g.status);$('pause').textContent=g.status==='paused'?'继续 / P':'暂停 / P';$('start').textContent=g.status==='ready'?'开始游戏':'重新开始';
+    const o=$('overlay');o.hidden=g.status==='running';if(g.status==='ready')o.innerHTML='<div><h2>像素矿工</h2><p>方向键 / WASD 移动，也可以点地面。</p><p>点击下方「开始游戏」 · '+g.duration+' 秒一局</p></div>';
+    if(g.status==='paused')o.innerHTML='<div><h2>已暂停</h2><p>计时与巡逻都停止。点击「继续」或按 P。</p></div>';
+    if(g.status==='ended')o.innerHTML='<div><h2>时间到 · 本局结束</h2><div class="result-grid"><span><b>'+g.collected+'</b>采集块数</span><span><b>'+g.banked+'</b>入账分数</span><span><b>'+g.lost+'</b>碰撞损失</span><span><b>'+g.carried+'</b>未带回</span><span><b>'+g.returns+'</b>返回次数</span></div><p>点击「重新开始」再试一次。这里是真实本局结果。</p></div>';
+  }
+  function events(){for(const e of g.events.splice(0)){if(e.type==='hit'){target=null;$('notice').textContent='遇险返回基地'+(C.stage===4?'，背包损失 '+e.value+' 分':'，已得分保留');}else if(e.type==='bank')$('notice').textContent='存入 '+e.value+' 分！背包已清空。';else if(e.type==='collect')$('notice').textContent=(C.stage===4?'背包':'得分')+' +'+e.value+(C.fault?'（注意：要求是一块 10 分）':'');else if(e.type==='finish')$('notice').textContent='本局已结束，移动和计分停止。';if(enhanced&&e.type!=='finish'){beep(e.type);if(!reduced){const p=document.createElement('span');p.className='pop';p.textContent=e.type==='hit'?'!':'+'+e.value;p.style.left=(e.x/960*100)+'%';p.style.top=(e.y/540*100)+'%';$('pops').append(p);setTimeout(()=>p.remove(),750);}}}}
+  function tick(now){if(disposed||g.status!=='running'){halt();return;}const dt=last?(now-last)/1000:0;last=now;M.update(g,dt,{x:(keys.ArrowRight||keys.d?1:0)-(keys.ArrowLeft||keys.a?1:0),y:(keys.ArrowDown||keys.s?1:0)-(keys.ArrowUp||keys.w?1:0),target});events();paint();if(g.status==='running')raf=requestAnimationFrame(tick);else halt();}
+  function run(){if(!raf&&!disposed){last=0;raf=requestAnimationFrame(tick);}}
+  function pause(){if(g.status==='running'){M.pause(g);clearInput();halt();audio?.suspend();paint();}}
+  $('start').onclick=()=>{g=M.createGame(C.stage,5050,!!C.fault);clearInput();$('notice').textContent='每块矿石 10 分。先靠近左上方第一块。';$('pops').replaceChildren();halt();M.start(g);paint();canvas.focus();run();};
+  function toggle(){if(g.status==='paused'){M.resume(g);paint();canvas.focus();run();}else pause();}
+  $('pause').onclick=toggle;$('sound').onclick=()=>{sound=!sound;$('sound').textContent=sound?'声音：开':'声音：关';if(sound)beep('collect');else audio?.suspend();};
+  $('feedback').onclick=()=>{enhanced=!enhanced;$('feedback').textContent=enhanced?'表现：强化':'表现：基础';document.body.classList.toggle('plain',!enhanced);paint();};
+  document.addEventListener('keydown',e=>{const key=e.key.length===1?e.key.toLowerCase():e.key;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','w','a','s','d','p'].includes(key)&&!['INPUT','TEXTAREA'].includes(e.target.tagName)){e.preventDefault();e.stopPropagation();if(key==='p'){if(!e.repeat)toggle();}else{keys[key]=true;target=null;}}});document.addEventListener('keyup',e=>{delete keys[e.key.length===1?e.key.toLowerCase():e.key];});
+  function point(e){const r=canvas.getBoundingClientRect();target={x:(e.clientX-r.left)/r.width*960,y:(e.clientY-r.top)/r.height*540};}
+  canvas.addEventListener('pointerdown',e=>{if(g.status==='running'){canvas.focus();point(e);canvas.setPointerCapture(e.pointerId);}});canvas.addEventListener('pointermove',e=>{if(e.buttons&&g.status==='running')point(e);});
+  window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+  function dispose(){disposed=true;pause();halt();audio?.close();}
+  window.addEventListener('pagehide',dispose);window.addEventListener('message',e=>{if(e.source!==window.parent)return;if(e.data?.type==='ARCADE_PAUSE')pause();if(e.data?.type==='ARCADE_DISPOSE')dispose();});
+  if('IntersectionObserver'in window)new IntersectionObserver(entries=>{if(!entries[0].isIntersecting)pause();},{threshold:.1}).observe(canvas);
+  paint();
+})();
+</script></body></html>

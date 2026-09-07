@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>像素矿工：再拿一块 · 玩法实验室</title><link rel="icon" href="assets/favicon.svg"><link rel="stylesheet" href="lab.css"></head>
+<body>
+<header class="lab-header"><div><span class="eyebrow">PLAYABLE EXPERIMENT / 01</span><h1>像素矿工<span>再拿一块。</span></h1></div><div class="header-actions"><span class="offline">● 离线可玩</span><a href="index.html" target="_top">返回课件 ↗</a></div></header>
+<main class="lab-layout">
+<section class="game-panel" aria-label="矿工试玩区">
+  <div class="scoreboard"><div><span>已入账</span><strong id="banked">000</strong></div><div><span id="carriedLabel">背包 / A 版直接入账</span><strong id="carried">000</strong></div><div><span>剩余时间</span><strong id="timer">45<span>s</span></strong></div><div><span>当前版本</span><strong id="versionLabel">A</strong></div></div>
+  <div class="stage" id="stage" tabindex="0" aria-label="游戏画布，方向键或 WASD 移动，P 暂停"><canvas id="game" width="960" height="540"></canvas>
+    <div id="gameOverlay" class="game-overlay"><div class="overlay-box"><span class="eyebrow" id="overlayTag">INSERT CURIOSITY</span><h2 id="overlayTitle">矿石就在前面。</h2><p id="overlayText">45 秒，捡到矿石就得分。先玩一局，再换一条规则。</p><button id="overlayStart" class="primary">开始采集 →</button></div></div>
+    <div id="toast" class="game-toast" aria-live="polite"></div>
+  </div>
+  <div class="game-controls"><span><kbd>WASD</kbd> / <kbd>↑↓←→</kbd> 移动 · 点击地面 / 触摸移动</span><div><button id="pause" disabled>暂停</button><button id="restart">重开本局</button></div></div>
+  <div class="rule-strip" id="ruleStrip">A 版：每块矿石 10 分，拾取即入账；碰撞只送回基地。</div>
+</section>
+<aside class="console">
+  <span class="eyebrow">DIRECTOR'S CONSOLE</span><h2>改规则，看选择。</h2>
+  <div class="version-switch" role="group" aria-label="选择版本"><button data-version="A" class="selected"><b>A</b><span>即时得分<small>捡到，就属于你</small></span></button><button data-version="B"><b>B</b><span>带回才算<small>再拿一块，还是先回去？</small></span></button></div>
+  <p class="console-note">固定地图 · 固定速度 · 固定巡逻<br>只改变入账规则。切换会重新开局。</p>
+  <div class="console-divider"></div>
+  <label class="toggle"><input id="feedback" type="checkbox" checked><span>强化反馈<small>粒子 / 跳字 / 轻微震动，不改规则</small></span></label>
+  <label class="toggle"><input id="sound" type="checkbox"><span>开启音效<small>默认静音，需主动开启</small></span></label>
+  <label class="toggle"><input id="motion" type="checkbox"><span>减少动态效果</span></label>
+  <button class="outline full" id="taskButton">查看这个版本的任务卡 ↗</button>
+  <p class="boundary">教学预置实验，不连接 AI。<br>按钮切换不是“AI 正在生成”。</p>
+</aside>
+</main>
+<section class="results-section"><div class="section-title"><div><span class="eyebrow">OBSERVE, DON'T GUESS</span><h2>刚才发生了什么？</h2></div><button id="clearResults" class="text-button">清空试玩记录</button></div>
+<div id="results" class="results-grid"></div><p class="result-caveat">仅显示当前页面最近两次完成的真实试玩；操作熟练度也会影响结果，单人两局不能证明哪个版本更好玩。</p></section>
+<dialog id="taskDialog"><div class="dialog-head"><span>任务卡 / 模板生成，非 AI 回答</span><button id="closeTask" aria-label="关闭任务卡">✕</button></div><h2>把一条规则，交给执行者。</h2><textarea id="taskText" rows="12" readonly aria-label="可复制任务卡"></textarea><button id="copyTask" class="primary">复制任务卡</button><span id="copyStatus" role="status"></span></dialog>
+<script src="lab-model.js"></script><script src="pixel-world.js"></script><script src="lab.js"></script>
+</body></html>
