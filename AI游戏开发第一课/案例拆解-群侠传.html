@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>案例拆解 · 群侠传：幸存者 — 一个人 + 十几个 Agent，三个月上架 Steam</title>
+<link rel="icon" href="assets/favicon.svg">
+<style>
+@font-face{font-family:Noto;src:url('assets/fonts/NotoSansSC.ttf');font-display:swap}
+@font-face{font-family:Pixel;src:url('assets/fonts/PressStart2P-Regular.ttf');font-display:swap}
+:root{--bg:#0a0e1a;--panel:rgba(21,32,44,.78);--ink:#f9ebcd;--muted:#9db0b8;--dim:#7b8b92;
+  --gold:#ffd17c;--green:#8fe6b0;--neon:#4de8ff;--sakura:#ffb7d5;--magenta:#ff5da2;--violet:#a06bff;--line:rgba(77,232,255,.18)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:16.5px/1.9 Noto,'Microsoft YaHei',sans-serif;color:var(--ink);background:
+  radial-gradient(1100px 480px at 85% -8%,rgba(255,93,162,.09),transparent 62%),
+  radial-gradient(900px 460px at 5% 108%,rgba(77,232,255,.08),transparent 62%),var(--bg)}
+h1{font-size:clamp(26px,3.8vw,42px);margin:.3em 0;line-height:1.4}
+h2{font-size:clamp(21px,2.6vw,29px);color:var(--gold);margin:0 0 .4em}
+h3{font-size:18.5px;color:var(--green);margin:0 0 .3em}
+p{margin:.5em 0}
+a{color:var(--neon)}
+.pix{font-family:Pixel,monospace;font-size:10px;letter-spacing:2.5px;color:var(--neon);text-shadow:0 0 10px rgba(77,232,255,.6)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 26px}
+section{padding:48px 0 28px;border-top:1px solid transparent;border-image:linear-gradient(90deg,transparent,rgba(77,232,255,.3),transparent) 1}
+.topnav{position:sticky;top:0;z-index:60;background:rgba(10,14,26,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(77,232,255,.25)}
+.topnav .wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+.topnav a{color:var(--muted);text-decoration:none;font-size:13.5px;padding:6px 11px;border-radius:8px}
+.topnav a:hover{color:var(--gold)}
+.topnav .home{color:var(--gold);font-weight:700}
+.topnav .spacer{flex:1}
+header.hero{padding:50px 0 24px}
+.lead{color:var(--muted);max-width:820px;font-size:16.5px}
+.lead b{color:var(--ink)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:860px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:19px 21px;box-shadow:0 8px 26px rgba(3,6,12,.5)}
+.card h4{font-size:16.5px;margin:0 0 5px}
+.card p{font-size:14px;color:var(--muted);margin:3px 0}
+.tagline{display:inline-block;font-size:12px;padding:2px 11px;border-radius:14px;border:1px solid rgba(255,209,124,.45);color:var(--gold);margin-bottom:9px}
+.tagline.cyan{border-color:rgba(77,232,255,.45);color:var(--neon)}
+.tagline.pink{border-color:rgba(255,93,162,.45);color:var(--sakura)}
+.note{position:relative;border:2px solid rgba(255,209,124,.5);border-radius:12px;margin:20px 0;
+  background:linear-gradient(180deg,rgba(27,48,56,.95),rgba(16,27,33,.95));
+  box-shadow:0 0 0 3px #0a0e1a,5px 7px rgba(5,8,15,.7);padding:15px 20px;color:#f2e6c8;font-size:14.5px}
+.note.red{border-color:rgba(255,93,162,.55)}
+.note.green{border-color:rgba(143,230,176,.5)}
+.note b{color:#fff}
+.player{border:2px solid rgba(77,232,255,.35);border-radius:14px;overflow:hidden;background:#000;
+  box-shadow:0 0 30px rgba(77,232,255,.12),0 10px 30px rgba(3,6,12,.6);margin:18px 0}
+.player iframe{width:100%;aspect-ratio:16/9;border:0;display:block}
+.player .cap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 16px;font-size:13px;color:var(--dim);
+  border-top:1px solid var(--line);background:rgba(16,27,33,.9)}
+.player .cap a{color:var(--neon);text-decoration:none}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;text-align:center}
+.stat b{display:block;font-size:24px;background:linear-gradient(180deg,#fff,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat span{font-size:12.5px;color:var(--dim)}
+.flow{display:grid;gap:0;margin-top:20px}
+.fstep{display:grid;grid-template-columns:64px 1fr;gap:16px;position:relative;padding:0 0 22px 0}
+.fstep::before{content:"";position:absolute;left:31px;top:56px;bottom:0;width:2px;background:linear-gradient(180deg,var(--neon),transparent)}
+.fstep:last-child::before{display:none}
+.fstep .fn{width:56px;height:56px;border-radius:50%;border:2px solid rgba(77,232,255,.5);display:flex;align-items:center;justify-content:center;
+  font-family:Pixel,monospace;font-size:13px;color:var(--neon);background:var(--bg);text-shadow:0 0 10px rgba(77,232,255,.7)}
+.fstep .fc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+.fstep .fc h4{margin:0 0 4px;font-size:16px}
+.fstep .fc p{font-size:14px;color:var(--muted);margin:2px 0}
+.eps{display:grid;gap:12px;margin-top:16px}
+.ep{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;text-decoration:none;color:inherit;
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 17px;transition:transform .2s,border-color .2s}
+.ep:hover{transform:translateX(4px);border-color:var(--gold)}
+.ep .bv{font-family:Pixel,monospace;font-size:9px;color:var(--neon);letter-spacing:.5px}
+.ep h4{margin:0;font-size:15.5px;color:var(--ink)}
+.ep p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.ep .dur{font-size:12.5px;color:var(--gold);white-space:nowrap}
+@media(max-width:640px){.ep{grid-template-columns:1fr}.ep .dur{display:none}}
+.qa{border-left:4px solid var(--violet);background:rgba(160,107,255,.07);border-radius:0 10px 10px 0;padding:13px 18px;margin:12px 0;font-size:15px}
+.qa b{color:#d9c2ff}
+.srcs{font-size:13px;color:var(--dim);margin-top:26px}
+.srcs li{margin:5px 0}
+footer{border-top:1px solid var(--line);padding:26px 0 50px;color:var(--dim);font-size:13.5px}
+@media print{.topnav,.player{display:none}body{background:#fff;color:#222}}
+</style>
+</head>
+<body>
+
+<nav class="topnav"><div class="wrap">
+  <a class="home" href="../index.html">← 课件首页</a>
+  <a href="#why">为什么拆它</a>
+  <a href="#watch">47 分钟怎么看</a>
+  <a href="#how">三个月怎么做</a>
+  <a href="#judge">制作人两问</a>
+  <a href="#eps">四集地图</a>
+  <span class="spacer"></span>
+  <a href="index.html">正课</a>
+  <a href="体验实验室.html">体验实验室</a>
+  <a href="教程参考.html">教程参考</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <span class="pix">CASE STUDY · 案例拆解 01</span>
+  <h1>《群侠传：幸存者》——一个活人 + 十几个 Agent，<br>三个月把游戏送上了 Steam</h1>
+  <p class="lead">UP 主 <b>Nenly 同学</b>（B 站 70 万粉 AI 博主、20 年老玩家，<b>此前一行代码都不会写</b>）用 Vibe Coding 做出一款武侠幸存者 like 游戏，2026 年 8 月 11 日上架 Steam，EA 免费，好评率 94%。本页拆解你发来的这条 <b>47 分钟完整实机演示</b>：它是什么、怎么看、对我们有什么用。</p>
+  <div class="stats">
+    <div class="stat"><b>47:55</b><span>实机演示时长 · 全程开发者解说</span></div>
+    <div class="stat"><b>19 万+</b><span>该视频播放量（2026-09-07 抓取）</span></div>
+    <div class="stat"><b>94%</b><span>Steam 好评率（媒体 2026-08 报道）</span></div>
+    <div class="stat"><b>0 行代码</b><span>作者三个月前的编程基础</span></div>
+  </div>
+</div></header>
+
+<section id="video"><div class="wrap">
+  <span class="pix">WATCH FIRST · 先看原片</span>
+  <h2>《群侠传：幸存者》47 分钟完整实机演示 + 开发者全程解说</h2>
+  <div class="player">
+    <iframe src="https://player.bilibili.com/player.html?bvid=BV1S9uw6jE12&page=1&high_quality=1&danmaku=0" allowfullscreen scrolling="no" title="群侠传幸存者 47 分钟实机演示"></iframe>
+    <div class="cap"><span>B 站 AI 创造公开赛入选作品 · 平台标注「含 AI 生成内容」</span><a href="https://www.bilibili.com/video/BV1S9uw6jE12" target="_blank" rel="noopener">在 B 站打开（可看弹幕评论）↗</a></div>
+  </div>
+  <p style="color:var(--dim);font-size:13.5px">嵌入播放器需要联网并可访问 bilibili；离线时可直接复制 BV 号 BV1S9uw6jE12 搜索。作者自述：这条视频是「完整一局流程，从开局选人打到第 17 波通关」，解说里既讲机制和特色，也讲 BUG。</p>
+</div></section>
+
+<section id="why"><div class="wrap">
+  <span class="pix">WHY THIS CASE · 为什么专门拆它</span>
+  <h2>四个理由：这是目前最适合新人拆的完整案例</h2>
+  <div class="grid g4" style="margin-top:18px">
+    <div class="card"><span class="tagline">终点可见</span><h4>从 Demo 走到了上架</h4><p>课件教你做「能玩的 Demo」，这个案例让你看到同一条路再走三个月的终点：Steam 商店页、真实玩家评测、愿望单破千。</p></div>
+    <div class="card"><span class="tagline cyan">语境相同</span><h4>中文环境 + 国产题材</h4><p>不是远在 X 上的硅谷故事：武侠幸存者 like、B 站发布、中文玩家社区，和你我的工作语境完全一致。</p></div>
+    <div class="card"><span class="tagline cyan">过程全公开</span><h4>四集实录，不藏不装</h4><p>从上架复盘、47 分钟实机、开场 CG 制作到三周玩家反馈，过程完整公开，连 BUG 和「还不配卖钱」都说了。</p></div>
+    <div class="card"><span class="tagline pink">态度诚实</span><h4>AI 使用声明写清楚了</h4><p>作者公开发布 AI 使用声明：哪些 AI 做、哪些人做、游戏内不含实时生成 AI 内容——这正是制作人该有的诚实。</p></div>
+  </div>
+</div></section>
+
+<section id="watch"><div class="wrap">
+  <span class="pix">HOW TO WATCH · 观看指南</span>
+  <h2>47 分钟怎么看：带五个问题进场</h2>
+  <p style="color:var(--muted);max-width:820px">别当娱乐视频刷。这是开发者对着实机画面讲设计，相当于一次免费的策划复盘课。边看边答：</p>
+  <div class="qa"><b>问题 1 · 循环：</b>开局选人 → 打怪升级 → 构筑流派 → 波次推进——每一分钟玩家在做什么决定？如果让你砍到 30 秒 Demo，你留哪一段？</div>
+  <div class="qa"><b>问题 2 · 数值：</b>商店页公开的信息：105 门武学、233 件道具、七大派系近 50 种敌人。这么大的数值量，一个人怎么管？（回忆本课「数值进配置表」）</div>
+  <div class="qa"><b>问题 3 · 分工：</b>看到画面里的立绘、动画、UI、音乐时猜：哪个是 AI 做的、哪个是人调的？看完去对答案（下方「三个月怎么做」）。</div>
+  <div class="qa"><b>问题 4 · 瑕疵：</b>作者自曝怪多会卡、攻击判定和提示不一致、受击手感飘。为什么 94% 好评的游戏仍然有这些？「能上架」和「完美」差多远？</div>
+  <div class="qa"><b>问题 5 · 验收：</b>如果你是制作人，上架前最后一周你会列哪十条验收？对比一下 Steam 页面现在的样子。</div>
+  <div class="note green"><b>小组用法：</b>2–3 人一组看前 15 分钟（到第二个精英怪出现即可），每人认领一个问题，10 分钟对照讨论。剩下的当课后素材。</div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <span class="pix">HOW IT WAS MADE · 方法论拆解</span>
+  <h2>三个月怎么做出来的：六步，全是课件里讲过的动作</h2>
+  <div class="flow">
+    <div class="fstep"><div class="fn">01</div><div class="fc"><h4>让 AI「拷打」自己（立项）</h4><p>不是一句「帮我做个游戏」就开干。他先让 AI 介绍「做幸存者 like 需要哪些知识、用什么引擎」，再让 AI 反问他：核心玩法是什么？爽点是什么？复玩理由是什么？——逼自己想清楚框架，最后选定 Godot 引擎。<b style="color:var(--ink)">对照本课 Q2 / 塔防 R0：先想清楚，不动手。</b></p></div></div>
+    <div class="fstep"><div class="fn">02</div><div class="fc"><h4>几何图形先跑起来（最小原型）</h4><p>第一个原型只有几何图形和简陋 UI——先证明循环成立，再谈美术。<b style="color:var(--ink)">对照 Q3：第一版丑没关系，能玩就行。</b></p></div></div>
+    <div class="fstep"><div class="fn">03</div><div class="fc"><h4>水磨工夫填内容</h4><p>105 门武学、233 件道具逐批做，暗器系统单独落地再调平衡。三个月、1300 多次 Commit——不是一夜生成，是每天推进一点。<b style="color:var(--ink)">对照 Q4：一次只改一件事。</b></p></div></div>
+    <div class="fstep"><div class="fn">04</div><div class="fc"><h4>用风格遮 AI 的短板</h4><p>选 HD-2D 像素做基底，AI 生成的立绘统一转成像素风再进游戏——像素风天然盖住 AI 素材的瑕疵，还容易统一。<b style="color:var(--ink)">这是制作人决策，不是技术决策。</b></p></div></div>
+    <div class="fstep"><div class="fn">05</div><div class="fc"><h4>人捏住质检关</h4><p>动画靠 AI「抽卡」，在海量素材里挑对的几帧再进 AE 微调；UI 先生成静态图，再拆零件进 PS 精修；音乐用模型出小样再混音。AI 声明里写得明白：玩法设计、数值平衡、手感调校和每一次「这样好不好玩」的判断，都是人在成百上千次试玩里完成的。<b style="color:var(--ink)">对照 Q5：AI 负责快，人负责真。</b></p></div></div>
+    <div class="fstep"><div class="fn">06</div><div class="fc"><h4>上架也是一轮验收</h4><p>EA 免费、写明「还不配卖钱」、被 Steam 打回过一次审核（误开数据统计选项）、每周根据玩家反馈修问题。上架不是终点，是最大规模的一次公测。<b style="color:var(--ink)">对照 Q6：交付 = 别人能玩 + 已知问题如实写。</b></p></div></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>3 个月</b><span>总开发周期（2026 年 4–8 月）</span></div>
+    <div class="stat"><b>1300+</b><span>Commit 次数</span></div>
+    <div class="stat"><b>约 50 亿</b><span>Token 消耗（作者口径）</span></div>
+    <div class="stat"><b>5–6 千元</b><span>AI 订阅总成本（人民币）</span></div>
+  </div>
+</div></section>
+
+<section id="judge"><div class="wrap">
+  <span class="pix">PRODUCER'S TWO QUESTIONS · 制作人两问</span>
+  <h2>它验证了什么？又回避了什么？</h2>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card" style="border-color:rgba(143,230,176,.45)"><span class="tagline">✓ 验证了的</span><h4>这些是真的</h4>
+      <p>· 零基础的人 + AI Agent，确实能走完「原型 → 内容 → 上架 → 真实玩家好评」全链路；</p>
+      <p>· 「让 AI 拷打自己」「风格遮短板」「人捏质检」这套方法可复用，不是玄学；</p>
+      <p>· 小团队/个人做中体量内容的成本结构被彻底改变（几千元 vs 传统几十万）。</p>
+    </div>
+    <div class="card" style="border-color:rgba(255,93,162,.45)"><span class="tagline pink">✕ 容易误读的</span><h4>这些要泼冷水</h4>
+      <p>· 作者不是纯小白：70 万粉 AI 教程博主 + 20 年老玩家，他对「好不好玩」的嗅觉是多年积累的；</p>
+      <p>· 三个月高强度投入 + 五六千元订阅费，是有门槛的；</p>
+      <p>· 94% 好评是高分个例，同期也有「AI 游戏平均少卖 53%」的统计——把它当目标，别当保底；</p>
+      <p>· 好评集中在 EA 免费+无内购+态度诚实的组合上，不只是游戏品质。</p>
+    </div>
+  </div>
+  <div class="note red"><b>给学员的一句话：</b>这个案例的价值不是「AI 多神」，而是<b>一个会提问、会验收、舍得花时间的人，在 AI 时代能走多远</b>。你正在学的，就是提问和验收。</div>
+</div></section>
+
+<section id="eps"><div class="wrap">
+  <span class="pix">SERIES MAP · 四集观看地图</span>
+  <h2>系列「Vibe Coding 做游戏开发的实录！」</h2>
+  <div class="eps">
+    <a class="ep" href="https://www.bilibili.com/video/BV1MPMd64EiD" target="_blank" rel="noopener">
+      <span class="bv">EP 01<br>BV1MPMd64EiD</span>
+      <span><h4>我 Vibe Coding 做的游戏，上架 Steam 了</h4><p>三个月从 0 到上架的完整复盘：怎么立项、怎么做、花了多少。先看这集建立全貌。</p></span>
+      <span class="dur">11:34 · 约 9 万播放</span>
+    </a>
+    <a class="ep" href="https://www.bilibili.com/video/BV1S9uw6jE12" target="_blank" rel="noopener">
+      <span class="bv">EP 02<br>BV1S9uw6jE12</span>
+      <span><h4>47 分钟完整实机演示 + 开发者全程解说</h4><p>本页主打：从开局选人打到第 17 波通关，讲机制、特色，也讲 BUG。带上方五个问题看。</p></span>
+      <span class="dur">47:55 · 约 19 万播放</span>
+    </a>
+    <a class="ep" href="https://www.bilibili.com/video/BV1j1uB6bEYZ" target="_blank" rel="noopener">
+      <span class="bv">EP 03<br>BV1j1uB6bEYZ</span>
+      <span><h4>2 天，用 Seedance 2.5 给游戏做了一支开场 CG</h4><p>AI 视频工具做宣发素材的实操。注意作者特意声明：这是片头 CG，不是实机画面。</p></span>
+      <span class="dur">1:44 · 约 1.9 万播放</span>
+    </a>
+    <a class="ep" href="https://www.bilibili.com/video/BV1eCbA6rEZV" target="_blank" rel="noopener">
+      <span class="bv">EP 04<br>BV1eCbA6rEZV</span>
+      <span><h4>上架三周，好评如潮，谢谢你玩我用 AI 做的游戏</h4><p>真实玩家反馈与作者回应——「上架不是终点」的最好注脚。</p></span>
+      <span class="dur">7:02 · 持续更新</span>
+    </a>
+  </div>
+
+  <h3 style="margin-top:30px">课后讨论（三选一，写 200 字）</h3>
+  <div class="grid g3" style="margin-top:12px">
+    <div class="card"><h4>① 拆最小循环</h4><p>把《群侠传：幸存者》缩成一个 30 秒网页 Demo，你会保留哪三个元素？砍掉什么？</p></div>
+    <div class="card"><h4>② 写验收清单</h4><p>假设你是制作人，给这款游戏上架前写 10 条验收（构建/规则/表现/合规各至少一条）。</p></div>
+    <div class="card"><h4>③ 写 AI 使用声明</h4><p>为你自己的作业 Demo 写一份 5 句话的 AI 使用声明：哪些 AI 做、哪些人做。</p></div>
+  </div>
+
+  <ul class="srcs">信息来源（均有出处，数字以原文为准）：
+    <li>视频标题、时长、播放量、系列结构、平台「含 AI 生成内容」标注：B 站官方 API，2026-09-07 抓取；</li>
+    <li>「47 分钟 = 开局选人打到第 17 波通关、讲机制特色与 BUG」：作者微博自述，2026-07；</li>
+    <li>好评率 94%、3 个月 / 1300+ Commit / 约 50 亿 token / 成本 5000–6000 元、Godot 引擎、「让 AI 拷打自己」、HD-2D 遮短板、动画抽卡 + AE 微调、现存瑕疵：游戏葡萄（腾讯新闻转载），2026-08-19；</li>
+    <li>440+ 评测 94% 好评、105 门武学 / 233 件道具 / 七大派系近 50 种敌人：什么值得买，2026-08-24 / 09-01；</li>
+    <li>AI 使用声明要点（人的判断范围、不含实时生成 AI 内容、CG 非实机）：作者在其乐论坛及小红书的公开声明（经什么值得买转述），2026-09-01。</li>
+  </ul>
+</div></section>
+
+<footer><div class="wrap">
+  <p>本页为教学拆解，不代表对原作品的任何官方立场；游戏与视频版权归原作者所有。玩原游戏：Steam 搜索「群侠传：幸存者」（EA 免费）。返回 <a href="index.html">正课</a> · <a href="体验实验室.html">体验实验室</a> · <a href="教程参考.html">教程参考</a> · <a href="../index.html">课件首页</a>。</p>
+</div></footer>
+
+</body>
+</html>
