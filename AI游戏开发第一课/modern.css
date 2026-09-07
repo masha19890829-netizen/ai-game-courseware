@@ -1,0 +1,121 @@
+/* modern.css — JRPG/霓虹视觉层，覆盖原像素街机风。加载于 outline.css 之后，同优先级后写生效。 */
+:root{
+  --bg:#0a0e1a;--panel:rgba(21,32,44,.78);--panel-solid:#15202c;
+  --cream:#f9ebcd;--muted:#9db0b8;--gold:#ffd17c;--mint:#8fe6b0;
+  --neon:#4de8ff;--sakura:#ffb7d5;--magenta:#ff5da2;--violet:#a06bff;
+  --line:rgba(77,232,255,.18);--red:#ff9a86;
+}
+body{background:
+  radial-gradient(1100px 480px at 85% -8%,rgba(255,93,162,.09),transparent 62%),
+  radial-gradient(900px 460px at 5% 108%,rgba(77,232,255,.08),transparent 62%),
+  var(--bg)!important;background-image:none!important}
+::selection{background:rgba(77,232,255,.3)}
+
+/* ===== 顶栏 ===== */
+.topbar{background:rgba(10,14,26,.92)!important;border-bottom:1px solid rgba(77,232,255,.25)!important;
+  backdrop-filter:blur(8px);box-shadow:0 2px 24px rgba(77,232,255,.06)}
+.brand{font-family:Noto,sans-serif!important;font-weight:800;font-size:15px!important;letter-spacing:2px;color:var(--cream)}
+.brand small{color:var(--muted);letter-spacing:3px}
+.brand-mark{border-radius:10px;clip-path:none!important;box-shadow:0 0 18px rgba(255,209,124,.45)!important;
+  background:linear-gradient(135deg,#ffe3a1,var(--gold) 55%,#e8ae4e)!important;font-size:22px}
+.live-dot{border-radius:50%;box-shadow:0 0 10px var(--mint)!important}
+.small-button,.icon-button{border-radius:8px!important;border:1px solid var(--line)!important;
+  background:rgba(21,32,44,.7)!important;box-shadow:none!important}
+.small-button:hover,.icon-button:hover{border-color:var(--neon)!important;color:var(--neon);box-shadow:0 0 14px rgba(77,232,255,.2)!important}
+
+/* ===== 左侧关卡栏 ===== */
+.rail{border-right:1px solid var(--line)!important;background:rgba(12,18,28,.5)}
+.rail button{font-family:Noto,sans-serif!important;font-weight:700;border-radius:10px!important;
+  border:1px solid transparent!important;background:transparent!important;box-shadow:none!important;color:var(--muted)}
+.rail button.active{background:linear-gradient(135deg,#ffe3a1,var(--gold))!important;color:#2a1e08!important;
+  box-shadow:0 0 16px rgba(255,209,124,.4)!important}
+.rail button:hover:not(.active){border-color:var(--line)!important;color:var(--neon)}
+
+/* ===== 章节标题 ===== */
+.eyebrow{font-family:Noto,sans-serif!important;font-weight:800;letter-spacing:3px!important;
+  color:var(--neon)!important;text-shadow:0 0 12px rgba(77,232,255,.5)}
+.chapter-head h1{color:var(--cream);text-shadow:0 0 26px rgba(255,209,124,.14);letter-spacing:-.02em!important}
+.chapter-head>p{color:var(--muted)!important}
+.tiny-label,.pixel-number{font-family:Noto,sans-serif!important;letter-spacing:2px}
+.pixel-number{color:rgba(77,232,255,.14)!important;-webkit-text-stroke:0!important}
+
+/* ===== 步骤页签 ===== */
+.step-tabs button{border-radius:20px!important;border:1px solid var(--line)!important;
+  background:rgba(21,32,44,.7)!important;box-shadow:none!important;font-weight:600}
+.step-tabs button.active{background:linear-gradient(135deg,#ffe3a1,var(--gold))!important;color:#2a1e08!important;
+  border-color:transparent!important;box-shadow:0 0 16px rgba(255,209,124,.35)!important}
+
+/* ===== 主内容面板 ===== */
+.board-inner,.instruction-board,.demo-poster,.prompt-paper,.instruction-side,
+.reference-board,.project-artifact,.decision-output,.workflow-detail,.why-item,
+.experiment-version,.bad-task,.good-task,.case-text,.artifact-content,
+.game-preview,.mode-cards>*,.demo-pair>*,.purpose-grid>*,.keep-grid>*{
+  border-radius:14px!important;border-color:var(--line)!important;
+  background:var(--panel)!important;box-shadow:0 8px 28px rgba(3,6,12,.55)!important}
+.demo-poster:hover,.mode-cards>*:hover{border-color:rgba(255,209,124,.5)!important}
+.scanlines{opacity:.25!important}
+
+/* ===== 按钮 ===== */
+.primary,.outline-button-row button,.download-ticket{
+  border-radius:10px!important;background:linear-gradient(135deg,#ffe3a1,var(--gold) 60%,#e8ae4e)!important;
+  color:#2a1e08!important;border:0!important;font-weight:700;
+  box-shadow:0 0 18px rgba(255,209,124,.28),0 4px 0 rgba(90,60,10,.6)!important}
+.primary:hover{filter:brightness(1.07)!important}
+.primary:active{transform:translateY(2px)!important;box-shadow:0 0 10px rgba(255,209,124,.2)!important}
+.send-prompt,.case-button{border-radius:10px!important;background:rgba(255,209,124,.08)!important;
+  border:1px solid rgba(255,209,124,.45)!important;color:var(--gold)!important;box-shadow:none!important;font-weight:700}
+.send-prompt *,.case-button *{color:var(--gold)!important}
+.send-prompt:hover,.case-button:hover{border-color:var(--gold)!important;box-shadow:0 0 16px rgba(255,209,124,.25)!important;background:rgba(255,209,124,.14)!important}
+.secondary,.text-link,.fault-link{border-radius:10px!important;border-color:var(--line)!important;background:rgba(21,32,44,.6)!important}
+.secondary:hover,.text-link:hover{border-color:var(--neon)!important;color:var(--neon)}
+
+/* ===== 右侧操作栏 ===== */
+.instruction-side{border-left:1px solid var(--line)!important;background:transparent!important;box-shadow:none!important}
+.instruction-side h2,.now-heading{color:var(--cream)}
+.expected-result{border-radius:12px!important;border:1px solid rgba(143,230,176,.35)!important;
+  background:rgba(143,230,176,.07)!important;box-shadow:none!important}
+.check-strip{border-radius:12px!important;border-color:var(--line)!important;background:rgba(21,32,44,.6)!important;box-shadow:none!important}
+.trouble summary{border-radius:10px!important}
+.send-prompt{border-radius:10px!important}
+.prompt-paper{border-radius:12px!important;border-left:3px solid var(--neon)!important;
+  background:rgba(11,20,26,.9)!important;color:#d8e6d2!important}
+.full-prompt{border-radius:10px!important}
+
+/* ===== 弹窗 ===== */
+dialog{border-radius:16px!important;border:1px solid rgba(77,232,255,.3)!important;
+  background:#101a26!important;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 40px rgba(77,232,255,.08)!important}
+.map-level{border-radius:12px!important;border-color:var(--line)!important;background:var(--panel)!important;
+  box-shadow:0 6px 20px rgba(3,6,12,.5)!important;transition:transform .2s,border-color .2s}
+.map-level:hover{transform:translateY(-3px);border-color:var(--neon)!important}
+.map-level.active{border-color:var(--gold)!important;background:rgba(255,209,124,.1)!important;
+  box-shadow:0 0 22px rgba(255,209,124,.2)!important}
+.map-level>strong{font-family:Noto,sans-serif!important;font-weight:800}
+.map-level>small{font-family:Noto,sans-serif!important}
+.drawer-actions button{border-radius:10px!important;border-color:var(--line)!important}
+.drawer-actions button:hover{border-color:var(--gold)!important;color:var(--gold)}
+
+/* ===== 底栏 ===== */
+.bottom-bar{background:rgba(10,14,26,.92)!important;border-top:1px solid rgba(77,232,255,.25)!important;backdrop-filter:blur(8px)}
+.progress-area>strong{font-family:Noto,sans-serif!important;font-weight:800;color:var(--gold)}
+.progress-pips i{border-radius:3px!important;background:rgba(77,232,255,.18)!important}
+.progress-pips i.done{background:var(--neon)!important;box-shadow:0 0 8px rgba(77,232,255,.6)}
+.progress-pips i.current{background:var(--gold)!important;box-shadow:0 0 10px rgba(255,209,124,.7)}
+.nav-button{border-radius:10px!important;border-color:var(--line)!important;background:rgba(21,32,44,.7)!important}
+.next-button{border-radius:12px!important;background:linear-gradient(135deg,#ffe3a1,var(--gold) 60%,#e8ae4e)!important;
+  color:#2a1e08!important;border:0!important;font-weight:800;
+  box-shadow:0 0 20px rgba(255,209,124,.35)!important}
+.footer-tools button{border-radius:8px!important;border-color:var(--line)!important;background:transparent!important}
+#chapterName{color:var(--muted)}
+
+/* ===== 链接与杂项 ===== */
+a,.official-link{border-radius:6px}
+.official-link{border-color:var(--line)!important}
+.official-link:hover{border-color:var(--neon)!important;color:var(--neon)}
+.limit-strip{border-radius:12px!important;border-color:rgba(255,154,134,.4)!important;background:rgba(255,154,134,.06)!important}
+.role-item b{color:var(--gold)}
+.evidence-table th{background:rgba(77,232,255,.1)!important;color:var(--neon)}
+.lesson-token,.board-badge{border-radius:20px!important;background:rgba(255,183,213,.12)!important;
+  border:1px solid rgba(255,183,213,.4)!important;color:var(--sakura)!important;box-shadow:none!important;font-family:Noto,sans-serif!important}
+.coin-badge{border-radius:20px!important;background:rgba(255,209,124,.14)!important;border:1px solid rgba(255,209,124,.45)!important;color:var(--gold)!important;font-family:Noto,sans-serif!important}
+.optional{outline:1px dashed rgba(160,107,255,.5)!important;outline-offset:4px}
+.optional-status{border-radius:14px!important;background:rgba(160,107,255,.12)!important;color:var(--violet)!important}
