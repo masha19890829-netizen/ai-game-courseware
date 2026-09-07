@@ -105,6 +105,7 @@ footer{border-top:1px solid var(--line);padding:26px 0 50px;color:var(--dim);fon
   <a class="home" href="../index.html">← 课件首页</a>
   <a href="index.html">正课</a>
   <a href="#tools">工具怎么选</a>
+  <a href="#codexmodes">Codex 双模式</a>
   <a href="#radar">能力雷达</a>
   <a href="#tutorials">官方实操教程</a>
   <a href="#xwall">X 案例墙</a>
@@ -197,6 +198,110 @@ footer{border-top:1px solid var(--line);padding:26px 0 50px;color:var(--dim);fon
     </div>
   </div>
   <div class="note"><b>素材类工具顺带一提：</b>美术参考图、音效、BGM 也有 AI 工具（图像生成、音乐生成），但本课主线用「代码画图形 + WebAudio 合成音」就够了——第一版别卡在素材上。</div>
+</div></section>
+
+<section id="codexmodes"><div class="wrap">
+  <span class="pix">DEEP DIVE · CODEX 双模式</span>
+  <h2>重点拆解：Codex 计划模式 vs 目标模式</h2>
+  <p style="color:var(--muted);max-width:840px">普通对话是「你说一句，它做一步」。这两个模式是两种更高级的用法：<b style="color:var(--ink)">计划模式（/plan）让它先把方案想清楚再动手；目标模式（/goal）让它围绕一个目标自己持续干到完成为止</b>。做游戏时，前者用来防翻车，后者用来省盯梢。</p>
+
+  <div class="grid g2" style="margin-top:20px">
+    <div class="tool" style="border-color:rgba(77,232,255,.45)">
+      <span class="role">先想后做 · 只读规划</span>
+      <h4>计划模式 Plan Mode</h4>
+      <table>
+        <tr><td>是什么</td><td>只读状态：它先调查你的项目、提澄清问题、产出一份<b>可审核的方案</b>（改哪些文件、什么顺序、有什么风险），你批准之前它不动手</td></tr>
+        <tr><td>怎么开</td><td>Codex 里输入 <code>/plan 加上你的需求</code>，或按 Shift + Tab 切换模式</td></tr>
+        <tr><td>防什么</td><td>「AI 自信地写错代码」——大改动先过一遍「设计评审」，把理解错误、范围失控拦在动手之前</td></tr>
+        <tr><td>适合</td><td>加新系统、改架构、动存档/结算这类「改错代价大」的任务</td></tr>
+      </table>
+    </div>
+    <div class="tool" style="border-color:rgba(255,93,162,.45)">
+      <span class="role">持续干完 · 闭环执行</span>
+      <h4>目标模式 Goal Mode（/goal）</h4>
+      <table>
+        <tr><td>是什么</td><td>给一个<b>可验证的目标</b>，它进入「干活 → 检查 → 没达标就继续」的循环，跑几小时甚至几天，直到达成或卡住。关机断点还能续跑</td></tr>
+        <tr><td>怎么开</td><td>Codex 0.128.0+ 输入 <code>/goal 目标</code>；管理：<code>/goal</code> 查看、<code>/goal pause</code> 暂停、<code>/goal resume</code> 恢复、<code>/goal clear</code> 清除</td></tr>
+        <tr><td>防什么</td><td>「说一句忘一句」——目标持久化，不用你每轮重复「还没好，继续」</td></tr>
+        <tr><td>适合</td><td>调平衡、修一串 bug、跑测试到全绿、性能优化到某个指标——<b>必须能用证据判断是否达标</b>的任务</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:18px">
+    <figure class="diagram"><svg viewBox="0 0 460 210" role="img" aria-label="计划模式流程">
+      <g font-size="12.5" text-anchor="middle">
+        <rect x="12" y="76" width="92" height="52" rx="9" fill="rgba(255,209,124,.1)" stroke="#ffd17c" stroke-width="1.8"/><text x="58" y="98" fill="#ffd17c">你提需求</text><text x="58" y="116" fill="#8aa096" font-size="11">一句话即可</text>
+        <line x1="106" y1="102" x2="128" y2="102" stroke="#4de8ff" stroke-width="1.8"/>
+        <rect x="130" y="76" width="104" height="52" rx="9" fill="rgba(77,232,255,.08)" stroke="#4de8ff" stroke-width="1.8"/><text x="182" y="98" fill="#4de8ff">只读调查</text><text x="182" y="116" fill="#8aa096" font-size="11">读文件·问问题</text>
+        <line x1="236" y1="102" x2="258" y2="102" stroke="#4de8ff" stroke-width="1.8"/>
+        <rect x="260" y="76" width="92" height="52" rx="9" fill="rgba(160,107,255,.1)" stroke="#a06bff" stroke-width="1.8"/><text x="306" y="98" fill="#c9a7ff">产出方案</text><text x="306" y="116" fill="#8aa096" font-size="11">文件·顺序·风险</text>
+        <line x1="354" y1="102" x2="376" y2="102" stroke="#4de8ff" stroke-width="1.8"/>
+        <rect x="378" y="76" width="72" height="52" rx="9" fill="rgba(255,209,124,.12)" stroke="#ffd17c" stroke-width="2.2"/><text x="414" y="98" fill="#ffd17c">你审核</text><text x="414" y="116" fill="#8aa096" font-size="11">批准或打回</text>
+        <path d="M 414 130 C 414 190 58 190 58 132" fill="none" stroke="#ff5da2" stroke-width="1.6" stroke-dasharray="5 4"/>
+        <text x="236" y="182" fill="#ff9ec4" font-size="11.5">打回就补一句「哪里不对」，它改方案——全程零代码被改</text>
+        <text x="380" y="46" fill="#8fe6b0" font-size="11">批准后 → 才允许动手</text>
+        <path d="M 414 74 L 414 60" stroke="#8fe6b0" stroke-width="1.6"/>
+      </g>
+      <figcaption style="font-size:12px;color:var(--dim);text-align:center;margin-top:6px">计划模式：动手权在你手里，方案不过关就永远停在纸面</figcaption></svg></figure>
+    <figure class="diagram"><svg viewBox="0 0 460 210" role="img" aria-label="目标模式闭环">
+      <g font-size="12.5" text-anchor="middle">
+        <rect x="12" y="76" width="96" height="52" rx="9" fill="rgba(255,93,162,.1)" stroke="#ff5da2" stroke-width="1.8"/><text x="60" y="98" fill="#ff9ec4">/goal 目标</text><text x="60" y="116" fill="#8aa096" font-size="11">可验证的那种</text>
+        <line x1="110" y1="102" x2="132" y2="102" stroke="#4de8ff" stroke-width="1.8"/>
+        <rect x="134" y="76" width="86" height="52" rx="9" fill="rgba(77,232,255,.08)" stroke="#4de8ff" stroke-width="1.8"/><text x="177" y="98" fill="#4de8ff">干活</text><text x="177" y="116" fill="#8aa096" font-size="11">改文件·跑命令</text>
+        <line x1="222" y1="102" x2="244" y2="102" stroke="#4de8ff" stroke-width="1.8"/>
+        <polygon points="290,70 326,102 290,134 254,102" fill="rgba(255,209,124,.1)" stroke="#ffd17c" stroke-width="1.8"/>
+        <text x="290" y="98" fill="#ffd17c">达标?</text><text x="290" y="114" fill="#8aa096" font-size="11">证据判定</text>
+        <path d="M 254 102 C 200 170 177 170 177 132" fill="none" stroke="#ff5da2" stroke-width="1.6" stroke-dasharray="5 4"/>
+        <text x="196" y="172" fill="#ff9ec4" font-size="11.5">没达标 → 继续迭代（可跑数小时/断点续跑）</text>
+        <line x1="328" y1="102" x2="350" y2="102" stroke="#8fe6b0" stroke-width="1.8"/>
+        <rect x="352" y="76" width="98" height="52" rx="9" fill="rgba(143,230,176,.1)" stroke="#8fe6b0" stroke-width="1.8"/><text x="401" y="98" fill="#8fe6b0">交付证据</text><text x="401" y="116" fill="#8aa096" font-size="11">日志·diff·摘要</text>
+        <text x="340" y="46" fill="#ffd17c" font-size="11">最后一步永远是你：看 diff、亲自试玩</text>
+        <path d="M 401 74 L 401 60" stroke="#ffd17c" stroke-width="1.6"/>
+      </g>
+      <figcaption style="font-size:12px;color:var(--dim);text-align:center;margin-top:6px">目标模式：循环它自己跑，验收权在你手里</figcaption></svg></figure>
+  </div>
+
+  <h3 style="margin-top:30px">做游戏时怎么用（话术直接抄）</h3>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="tool">
+      <span class="role">计划模式 · 场景：加大系统前</span>
+      <div class="promptbox" style="position:relative;background:#0b1418;border:1px solid var(--line);border-left:3px solid var(--neon);border-radius:0 10px 10px 0;padding:14px 16px;margin:12px 0;font-size:13.5px;color:#c8e6cf;white-space:pre-wrap;line-height:1.8">/plan 我想给现在的塔防加一个「英雄单位」系统（可移动、有技能、死亡可复活）。
+先不要改任何代码。请阅读 index.html，然后给我一份方案：
+① 需要新建/修改哪些部分（逻辑、配置表、UI）；② 推荐的实施顺序；③ 每个步骤的风险点；④ 每一步我怎么试玩验收。
+我确认方案后你再开始实施。</div>
+      <p style="font-size:13px;color:var(--dim)">审方案时重点看：它有没有漏掉「英雄死了游戏该不该输」这类设计决策——方案里没写的，它就会替你决定。</p>
+    </div>
+    <div class="tool">
+      <span class="role">计划模式 · 场景：动手前体检</span>
+      <div class="promptbox" style="position:relative;background:#0b1418;border:1px solid var(--line);border-left:3px solid var(--neon);border-radius:0 10px 10px 0;padding:14px 16px;margin:12px 0;font-size:13.5px;color:#c8e6cf;white-space:pre-wrap;line-height:1.8">/plan 这周加了太多功能，代码有点乱。
+先不要重构。请通读 index.html，回答：① 哪些部分的职责混在一起了；② 如果拆成「配置 / 规则 / 表现」三层，边界应该画在哪；③ 哪一处拆分收益最大、风险最小。只给分析和建议，不动代码。</div>
+      <p style="font-size:13px;color:var(--dim)">把计划模式当免费的技术评审：先看它眼中的你的项目，往往比想象中乱（或好）。</p>
+    </div>
+    <div class="tool">
+      <span class="role">目标模式 · 场景：调平衡（可验证）</span>
+      <div class="promptbox" style="position:relative;background:#0b1418;border:1px solid var(--line);border-left:3px solid #ff5da2;border-radius:0 10px 10px 0;padding:14px 16px;margin:12px 0;font-size:13.5px;color:#c8e6cf;white-space:pre-wrap;line-height:1.8">/goal 把塔防第 3 波难度调到「普通玩家基地剩 1 命以上能过」，以连续 3 局试玩日志（漏怪数、剩余命）为证据；只允许修改 WAVES 配置表，不改塔和英雄的数值；每一轮调整后完整跑一局再判断；如果 10 轮尝试内无法达标，停下来报告卡在哪、需要什么新信息。</div>
+      <p style="font-size:13px;color:var(--dim)">照官方建议的六要素写：结果 + 证据 + 约束 + 边界 + 迭代方式 + 停止条件。缺了停止条件，它可能无限调下去。</p>
+    </div>
+    <div class="tool">
+      <span class="role">目标模式 · 场景：修性能 / 修一串 bug</span>
+      <div class="promptbox" style="position:relative;background:#0b1418;border:1px solid var(--line);border-left:3px solid #ff5da2;border-radius:0 10px 10px 0;padding:14px 16px;margin:12px 0;font-size:13.5px;color:#c8e6cf;white-space:pre-wrap;line-height:1.8">/goal 同屏 50 个怪时保持 60fps，以浏览器性能面板或帧率日志为证据；不改变任何玩法数值和画面表现；先做测量找到瓶颈再优化，每步记录前后帧率；涉及碰撞和寻路的改动要先列给我确认。</div>
+      <p style="font-size:13px;color:var(--dim)">「先测量再优化」写进目标里，可以防止它靠瞎猜乱改。跑完务必自己再玩一局——帧率达标 ≠ 手感没变。</p>
+    </div>
+  </div>
+
+  <div class="note red" style="margin-top:20px"><b>三条纪律（翻车高发区）：</b>① 目标必须「可验证」——「做得更好」无法判定达标，它只能瞎转；② 永远给边界和停止条件——改哪里、几轮内、什么情况算卡住；③ 跑完人看 diff、人试玩——目标模式放大的是执行量，也放大错误量。官方文档同样要求：合并前人工审查改动。</div>
+
+  <h3 style="margin-top:26px">拓展阅读（含官方文档截图与案例）</h3>
+  <div class="tool" style="margin-top:10px">
+    <table>
+      <tr><td style="width:110px">官方 Cookbook</td><td><a href="https://developers.openai.com/cookbook/examples/codex/using_goals_in_codex" target="_blank" rel="noopener">Using Goals in Codex</a> — /goal 六要素模板与适用场景，最权威的一手文档</td></tr>
+      <tr><td>深度解析</td><td><a href="https://gitcode.csdn.net/6a13b7c310ee7a33f274e3b5.html" target="_blank" rel="noopener">Plan Mode 与 Goal Mode 深度解析</a> — 中文长文，含大量文档截图，讲清「为什么这是编程范式的升级」</td></tr>
+      <tr><td>背景故事</td><td><a href="https://www.ithome.com/0/950/063.htm" target="_blank" rel="noopener">Ralph Loop 与三家的 goal 模式竞赛</a> — 为什么 OpenAI / Anthropic / Hermes 在 11 天内都上了同一个功能（含官方推文截图）</td></tr>
+      <tr><td>Plan 实操</td><td><a href="https://smartscope.blog/en/generative-ai/chatgpt/codex-plan-mode-complete-guide/" target="_blank" rel="noopener">Codex Plan Mode 完整指南（英文）</a> — /plan、Shift+Tab、与只读权限的区别</td></tr>
+    </table>
+  </div>
+  <div class="note"><b>版本提醒：</b>目标模式需要 Codex 0.128.0 及以上（2026 年 5 月起在 app / IDE 扩展 / CLI 全面可用）。界面与命令以你实际安装的版本为准；公司环境使用前请确认工具在获准清单内。</div>
 </div></section>
 
 <section id="radar"><div class="wrap">
